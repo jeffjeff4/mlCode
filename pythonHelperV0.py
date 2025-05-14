@@ -92,5 +92,43 @@ def filterNonNumericalColV1(df):
     df_numeric = df.select_dtypes(include=['number'])
     return df_numeric
 
-def    
+def filterOutlierV0(x, col_name, low, high):
+    if x[col_name] < low or x[col_name] > high:
+        return True
+    return False
+
+def removeOutlierV0(df_in, col_name, low_threshold=0.25, high_threshold=0.75, threshold=1.5):
+    q1 = df_in[col_name].quantile(low_threshold)
+    q3 = df_in[col_name].quantile(low_threshold)
+
+    iqr = q3 - q1
+    low = q1 - threshold * iqr
+    high = q3 + threshold * iqr
+
+    mask = df_in.apply(filterOutlierV0, axis=1, args=(col_name, low, high))
+    print("mask = ")
+    print(mask)
+
+    df_in.loc[mask, col_name] = df_in[col_name].median()
+    return
+
+def filterOutlierV1(x, col_name, mean_val, std_val, threshold=3.0):
+    if np.abs(x[col_name] - mean_val) > threshold * std_val:
+        return True
+    return False
+
+
+def removeOutlierV1(df_in, col_name, threshold=3.0):
+    mean_val = df_in[col_name].mean()
+    std_val = df_in[col_name].std()
+
+    mask=df_in.apply(lambda row: filterOutlierV1(row, col_name, mean_val, std_val, threshold), axis=1)
+    print("mask = ")
+    print(mask)
+
+    df_in.loc[mask, col_name] = df_in[col_name].median()
+    return
+
+
+
 
