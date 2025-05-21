@@ -1,3 +1,5 @@
+import string
+
 import pandas as pd
 import numpy as np
 import seaborn as sns
@@ -6,7 +8,7 @@ from sklearn.cluster import KMeans
 import multiprocessing as mp
 import gc
 import datetime
-from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 import calendar
 from scipy.sparse import csr_matrix,hstack
 import tensorflow as tf
@@ -18,6 +20,14 @@ from tensorflow.python.ops.gen_array_ops import upper_bound
 from tqdm import tqdm
 import pickle
 from scipy import stats
+
+import nltk
+from nltk.stem import WordNetLemmatizer
+wordnet_lemmatizer = WordNetLemmatizer()
+
+import string
+
+
 
 features = pd.read_csv("/Users/shizhefu0/Desktop/ml/data/walmart-sales-forecast/features.csv")
 stores = pd.read_csv("/Users/shizhefu0/Desktop/ml/data/walmart-sales-forecast/stores.csv")
@@ -128,6 +138,144 @@ def removeOutlierV1(df_in, col_name, threshold=3.0):
 
     df_in.loc[mask, col_name] = df_in[col_name].median()
     return
+
+#--------------------------------------------------------
+# non numerical feature encoding
+#--------------------------------------------------------
+
+#*****************************
+#example
+#df = pd.DataFrame({'city': ['ny', 'la', 'sf', 'la']})
+#df_encoded = pd.get_dummies(df, columns=['city'], drop_first=True)
+#print(df_encoded)
+
+#usage:
+#df_encoded_sklearn_dropped = pd.concat([df, encoded_df], axis=1).drop('color', axis=1)
+
+#sample to call this function
+#col_name = ['color']
+#test_df0 = pdh.oneHotEncoderPd(df, col_name)
+#test_df0.head()
+#*****************************
+
+def oneHotEncoderPd(df, col_name, is_drop_first=True):
+    df_encoded = pd.get_dummies(df, columns=col_name, drop_first=is_drop_first)
+    return df_encoded
+
+def oneHotEncoderSklearn(df, col_name):
+    encoder = OneHotEncoder(drop='first', sparse=False, handle_unknown='ignore')
+    encoded_array_df = encoder.fit_transform(df[col_name])
+    feature_names = encoder.get_feature_names_out(col_name)
+
+    df_encoded = pd.DataFrame(encoded_array_df, columns=feature_names)
+    return df_encoded
+
+from sklearn.preprocessing import LabelEncoder
+def featureEncode(df, col_name):
+    le = LabelEncoder()
+    new_col_name = col_name + "_encoded"
+    df[new_col_name] = le.fit_transform(df[col_name])
+    return df
+
+#****************************
+#manual code
+#****************************
+
+#-----------------------------------------------------------------------
+# train model
+#-----------------------------------------------------------------------
+
+def trainAndValidModel(name, model, X_train, y_train, X_valid, y_valid):
+    model.fit(X_train, y_train)
+    preds = model.predict(X_valid)
+    rmse = mean_squared_error(y_valid, preds)
+
+    return model, rmse
+
+def testModel(name, model, evaluate_function, X_test, y_test):
+    preds = model.predict(X_test)
+    #rmse = mean_squared_error(y_valid, preds)
+    metrics = evaluate_function(y_test, preds)
+
+    return metrics
+
+#-----------------------------------------------------------------------
+# draw figure
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+# text processing
+#-----------------------------------------------------------------------
+
+def removePuncFromWord(word):
+    clean_word_list = []
+    for chr in word:
+        if chr.isalpha() == False:
+            continue
+        clean_word_list.append(chr)
+    clean_word = "".join(clean_word_list)
+    return clean_word
+
+def removePunctuation(reviews):
+    lst = reviews.split()
+    new_lst = []
+
+    for word in lst:
+        if word not in string.punctuation:
+            word = removePuncFromWord(word)
+            new_lst.append(word)
+
+    clean_review = ' '.join(new_lst)
+    return  clean_review
+
+def turnLower(review):
+    new_lst = []
+    review_lst = review.split()
+    for word in review_lst:
+        word = word.lower()
+        new_lst.append(word)
+    new_review = ' '.join(new_lst)
+    return new_review
+
+def tokenize(reviews):
+    tokens = reviews.split()
+    return tokens
+
+stopwords = nltk.corpus.stopwords.words('english')
+
+def removeStopwords(str0):
+    list0 = tokenize(str0)
+    word_list_final = []
+    for x in list0:
+        if x not in stopwords:
+            word_list_final.append(x)
+
+    return ' '.join(word_list_final)
+
+def Lemmatize(tokens):
+    lemmatized_token_list = []
+    for token in tokens:
+        lemmatized_token = wordnet_lemmatizer.lemmatize(token)
+        lemmatized_token_list.append(lemmatized_token)
+    return lemmatized_token_list
+
+def LemmatizeStr(str0):
+    list0 = tokenize(str0)
+    list1 = []
+    for token in list0:
+        lemmatized_token = wordnet_lemmatizer.lemmatize(token)
+        list1.append(lemmatized_token)
+
+    return ' '.join(list1)
+
+
+
+
+
+
+
+
 
 
 
