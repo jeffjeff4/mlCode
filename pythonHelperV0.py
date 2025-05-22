@@ -202,6 +202,55 @@ def testModel(name, model, evaluate_function, X_test, y_test):
 #-----------------------------------------------------------------------
 # draw figure
 #-----------------------------------------------------------------------
+def getHeatMapv0(df, df_name, is numeric_only=True, need_plot=True):
+    print("{0}".format(df_name))
+    corr = df.corr(numeric_only=is_numeric_only)
+    getDatasetInfo(corr, "corr")
+    if need_plot == True:
+        sns.heatmap(corr, annot=True, fmt=".2f", square=True, linewidths=.5)
+        plt.show()
+
+def drawBoxplot(df, col_name, fig_size_a=8, fig_size_b=6, need_plot=True):
+    plt.figure(figsize=(fig_size_a, fig_size_a))
+    sns.boxplot(x=df[col_name])
+    plt.title('Boxplot for {0}'.format(col_name))
+    if need_plot == True:
+        plt.show()
+
+def drawScatterplot(df, col_name_x, col_name_y, fig_size_a=8, fig_size_b=6, need_plot=True):
+    plt.figure(figsize=(fig_size_a, fig_size_a))
+    sns.regplot(x=df[col_name_x], y=df[col_name_y], scatter_kws={'alpha': 0.5}, line_kws={"color": "darkblue"})
+    plt.title('Scatter plot - {0} vs {1} with regression line'.format(col_name_x, col_name_y))
+    plt.xlabel('{0}'.format(col_name_x))
+    plt.ylabel('{0}'.format(col_name_y))
+
+    if need_plot == True:
+        plt.show()
+
+def drawHistogram(df, col_name, fig_size_a=8, fig_size_b=6, this_color='g', num_of_bins=100, need_plot=True):
+    plt.figure(figsize=(fig_size_a, fig_size_a))
+    sns.hisplot(df[col_name], color=this_color, kde=True, bin=num_of_bins)
+    plt.title('Histogram for {0}'.format(col_name))
+
+    if need_plot == True:
+        plt.show()
+
+def drawXYFig(df, x_col, y_col, title="fig"):
+    df.plt(x=x_col, y=y_col)
+    plt.xlabel(x_col)
+    plt.ylabel(y_col)
+    plt.title(title)
+    plt.show()
+
+def drawSnsCountFig(df, x_col):
+    sns.countplot(df, data=x_col)
+
+def drawSnsDistFig(df, x_col):
+    sns.distplot(df[x_col])
+
+def drawSnsBoxFig(df, x_col):
+    sns.boxplot(df[x_col])
+
 
 
 #-----------------------------------------------------------------------
