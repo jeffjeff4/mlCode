@@ -162,6 +162,22 @@ def oneHotEncoderPd(df, col_name, is_drop_first=True):
     df_encoded = pd.get_dummies(df, columns=col_name, drop_first=is_drop_first)
     return df_encoded
 
+#*****************************
+#example
+# sample categorical data (Numpy array or Pandas DataFrame)
+# data = np.array([['red'], ['blue'], ['green'], ['red'], ['yellow']])
+# or as pandas dataframe:
+#  df = pd.DataFrame({'color': ['red', 'blue', 'green', 'red', 'yellow']})
+
+#usage
+# df_encoded_sklearn_dropped = pd.concat([df, encoded_df], axis=1).drop('color', axis=1)
+
+#sample to call this function
+#col_name = ['color']
+# df_encoded = pandasHelpers.oneHotEncoderSklearn(df, col_name=col_name, is_drop_first=True)
+# df_encoded.head()
+#*****************************
+
 def oneHotEncoderSklearn(df, col_name):
     encoder = OneHotEncoder(drop='first', sparse=False, handle_unknown='ignore')
     encoded_array_df = encoder.fit_transform(df[col_name])
@@ -180,6 +196,14 @@ def featureEncode(df, col_name):
 #****************************
 #manual code
 #****************************
+
+#col_name = 'Rating'
+#new_col_name = 'Class'
+#training_df = review_clean_df
+#training_df.loc[training_df[col_name].isin([1.0, 2.0]), new_col_name] = 'Bad'
+#training_df.loc[training_df[col_name].isin([3.0]), new_col_name] = 'Neutral'
+#training_df.loc[training_df[col_name].isin([4.0, 5.0]), new_col_name] = 'Good'
+
 
 #-----------------------------------------------------------------------
 # train model
