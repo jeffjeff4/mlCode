@@ -33,6 +33,14 @@ from collections import Counter
 import re
 
 import torch
+import torch
+import torch.nn as nn
+import math
+import numpy as np
+from torch.nn import TransformerEncoder, TransformerEncoderLayer
+from sklearn.preprocessing import StandardScaler
+from torch.utils.data import Dataset, DataLoader
+
 
 features = pd.read_csv("/Users/shizhefu0/Desktop/ml/data/walmart-sales-forecast/features.csv")
 stores = pd.read_csv("/Users/shizhefu0/Desktop/ml/data/walmart-sales-forecast/stores.csv")
@@ -48,6 +56,19 @@ CORR_THRESHOLD = 0.1
 #------------------------------------------------------------------
 # df
 #------------------------------------------------------------------
+def getDfInfo(df, df_name, need_plot=False):
+    print("len_df = ", len(df))
+    print(df.head())
+    print("{0}.head = ".format(df_name))
+    print(df.head(10))
+    print("{0}.info = ".format(df_name))
+    print(df.info())
+    print("{0}.describe = ".format(df_name))
+    print(df.describe())
+    if need_plot==True:
+        df.plot()
+        plt.title("{0}.info = ".format(df_name))
+        plt.show()
 
 
 
@@ -231,7 +252,7 @@ def testModel(name, model, evaluate_function, X_test, y_test):
 #-----------------------------------------------------------------------
 # draw figure
 #-----------------------------------------------------------------------
-def getHeatMapv0(df, df_name, is numeric_only=True, need_plot=True):
+def getHeatMapv0(df, df_name, is_numeric_only=True, need_plot=True):
     print("{0}".format(df_name))
     corr = df.corr(numeric_only=is_numeric_only)
     getDatasetInfo(corr, "corr")
@@ -320,7 +341,41 @@ def tokenize(reviews):
     tokens = reviews.split()
     return tokens
 
-stopwords = nltk.corpus.stopwords.words('english')
+#stopwords = nltk.corpus.stopwords.words('english')
+
+
+#import spacy
+## Load the English language model (download first if needed: `python -m spacy download en_core_web_sm`)
+#nlp = spacy.load("en_core_web_sm")
+#stopwords = nlp.Defaults.stop_words  # Returns a set
+
+'''
+stopwords = {
+    'i', 'me', 'my', 'myself', 'we', 'our', 'ours', 'ourselves', 'you', "you're",
+    "you've", "you'll", "you'd", 'your', 'yours', 'yourself', 'yourselves', 'he',
+    'him', 'his', 'himself', 'she', "she's", 'her', 'hers', 'herself', 'it', "it's",
+    'its', 'itself', 'they', 'them', 'their', 'theirs', 'themselves', 'what', 'which',
+    'who', 'whom', 'this', 'that', "that'll", 'these', 'those', 'am', 'is', 'are',
+    'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'having', 'do', 'does',
+    'did', 'doing', 'a', 'an', 'the', 'and', 'but', 'if', 'or', 'because', 'as',
+    'until', 'while', 'of', 'at', 'by', 'for', 'with', 'about', 'against', 'between',
+    'into', 'through', 'during', 'before', 'after', 'above', 'below', 'to', 'from',
+    'up', 'down', 'in', 'out', 'on', 'off', 'over', 'under', 'again', 'further',
+    'then', 'once', 'here', 'there', 'when', 'where', 'why', 'how', 'all', 'any',
+    'both', 'each', 'few', 'more', 'most', 'other', 'some', 'such', 'no', 'nor',
+    'not', 'only', 'own', 'same', 'so', 'than', 'too', 'very', 's', 't', 'can',
+    'will', 'just', 'don', "don't", 'should', "should've", 'now', 'd', 'll', 'm',
+    'o', 're', 've', 'y', 'ain', 'aren', "aren't", 'couldn', "couldn't", 'didn',
+    "didn't", 'doesn', "doesn't", 'hadn', "hadn't", 'hasn', "hasn't", 'haven',
+    "haven't", 'isn', "isn't", 'ma', 'mightn', "mightn't", 'mustn', "mustn't",
+    'needn', "needn't", 'shan', "shan't", 'shouldn', "shouldn't", 'wasn', "wasn't",
+    'weren', "weren't", 'won', "won't", 'wouldn', "wouldn't"
+}
+'''
+
+from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+
+stopwords = ENGLISH_STOP_WORDS  # Returns a frozen set
 
 def removeStopwords(str0):
     list0 = tokenize(str0)
@@ -441,12 +496,59 @@ def sentencesToTensor(sentences, vocab, max_len=None):
     return torch.tensor(padded, dtype=torch.long)
 
 
-import torch
-import torch.nn as nn
-import math
-import numpy as np
-from torch.nn import TransformerEncoder, TransformerEncoderLayer
+#-----------------------
+#using glove
+#-----------------------
+# Load Glove
+glove_path = ""
+#glove_enbeddings = loadGloveEmbeddings(glove_path)
 
+def loadGloveEmbeddings(file_path = glove_path):
+    embeddings = {}
+    with open(file_path, 'r', encoding='utf8') as f:
+        for line in f:
+            values = line.split()
+            word = values[0]
+            vector = np.array(values[1:], dtype='float32')
+            embeddings[word] = vector
+    return embeddings
+
+def tokensToEmbeddings(tokens, glove, embedding_dim=128):
+    vectors = []
+    for token in tokens:
+        if token in glove:
+            vectors.append(glove[token])
+        else:
+            # unknown word -> zero vector or random
+            vectors.append(np.zeros(embedding_dim))
+    return np.array(vectors)
+
+#--------------------------------------------------------
+#
+#--------------------------------------------------------
+
+#--------------------------------------------------------
+#Model
+#--------------------------------------------------------
+
+#----------------------------
+# simple transformer for classification
+#----------------------------
+
+#hyper parameters
+seq_len = 10
+vocab_size = 100
+embed_dim = 32
+num_heads = 4
+ff_dim = 64
+num_layers = 2
+batch_size = 8
+num_classes = 2
+lr = 1e-3
+epochs = 10
+
+
+#---------- positional embedding -------------
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=5000):
         super(PositionalEncoding, self).__init__()
@@ -460,6 +562,10 @@ class PositionalEncoding(nn.Module):
 
     def forward(self, x):
         return x + self.pe[:x.size(0), :]
+
+#--------------------------------
+# Simple Transformer for classification
+#--------------------------------
 
 class TransformerClassifier(nn.Module):
     def __init__(self, vocab_size, d_model=128, nhead=8, num_layers=3, num_classes=2):
@@ -480,7 +586,7 @@ class TransformerClassifier(nn.Module):
         output = output.mean(dim=0)
         return self.fc(output)
 
-
+# --- train function ---
 def trainTransformerClassifierV0(model, X, y):
     model.train()
     outputs = model(X)
@@ -520,6 +626,9 @@ def predictTransformerClassifierV0(model, X):
 #        num_classes=num_classes
 #    )
 #
+#    optimizer = optim.Adam(model.parameters(), lr=lr)
+#    criterion = nn.CrossEntropyLoss()
+#
 #    # Create dummy data (replace with real data)
 #    # Shape: (seq_len, batch_size)
 #    x = torch.randint(0, vocab_size, (seq_len, batch_size))
@@ -540,15 +649,30 @@ def predictTransformerClassifierV0(model, X):
 #    print("predictions:", preds.tolist())
 #    print("ground truth:", y.tolist())
 
+# --- Instantiate model ---
+# model = TransformerClassifier(vocab_size=vocab_size, d_model=128, nhead=8, num_layers=3, num_classes=num_classes)
+# optimizer = optim.Adam(model.parameters(), lr=lr)
+# criterion = nn.CrossEntropyLoss()
 
-import torch
-import torch.nn as nn
-import math
-import numpy as np
-from torch.nn import TransformerEncoder, TransformerEncoderLayer
-from sklearn.preprocessing import StandardScaler
-from torch.utils.data import Dataset, DataLoader
+# Dummy dataset (classification task)
+#X = torch.randint(0, vocab_size, (batch_size, seq_len)) # token_indices
+#y = torch.randint(0, num_classes, (batch_size,))
 
+# --- Run training ---
+#for epoch in range(epochs):
+#    loss = train(model, X, y)
+#    if epoch % 2 == 0:
+#        print("Epoch {epoch}: loss = {loss:.4f}")
+
+# --- Predict ---
+#preds = predict(model, X)
+#print("Predictions:", preds.tolist())
+#print("Ground truth:", y.tolist())
+
+
+#--------------------------------
+# Simple Transformer for classification
+#--------------------------------
 
 class TransformerRegressor(nn.Module):
     def __init__(self, input_dim, d_model=64, nhead=4, num_layers=3, dropout=0.1):
@@ -655,11 +779,152 @@ def predictTransformerRegressionV0(model, dataloader, device='cpu'):
 #    preds = predict(model, new_loader, device)
 #    print('New predictions:', preds)
 
+#--------------------------------
+# change numerical features to embedding
+#--------------------------------
+
+# assuming there are 10 numerical features, target is to map them to a embedding with dim=8
+class NumericEmbedding(nn.Module):
+    def __init__(self, input_dim, embedding_dim):
+        super().__init__()
+        self.linear = nn.Linear(input_dim, embedding_dim)
+
+    def forward(self, x):
+        return self.linear(x)
+
+# data
+#batch_size = 4
+#num_features = 10
+#x_numeric = torch.randn(batch_size, num_features)
+
+#initialize embedding
+#embedding_layer = NumericEmbedding(input_dim=10, embedding_dim=8)
+#embedded = embedding_layer(x_numeric)
+#print(embedded.shape) # torch.size([4, 8])
 
 
+#--------------------------------
+# change numerical features to bins, then to embedding
+#--------------------------------
+class BinedEmbedding(nn.Module):
+    def __init__(self, num_bins_list, embedding_dim):
+        super().__init__()
+        self.embeddings = nn.ModuleList([
+            nn.Embedding(num_bins, embedding_dim) for num_bins in num_bins_list
+        ])
+
+    def forward(self, x_binned):
+        # x_binned: LongTensor, shape (batch_size, num_features)
+        rst = []
+        for idx, embedding in enumerate(self.embeddings):
+            tmp = embedding(x_binned[:, idx])
+            rst.append(tmp)
+        return torch.cat(rst, dim=-1)
+
+#-------------
+#case 1:
+#-------------
+# simulation data: 3 numerical features, after binned
+#x_binned = torch.tensor([
+# [1,4,2],
+# [0,3,7],
+# [2,5,1],
+# ], dtype=torch.long)
+# )
+
+# the bin number of each feature is 10, the output embedding dim is 4
+#model = BinnedEmbedding(num_bins_list=[10, 10, 10], embedding_dim=4)
+#output = model(x)
+#print(output.shape) % output: torch.Size([3, 12]), 3 features, 4 dim size each
+
+#-------------
+#case 2:
+#-------------
+# simulation data: 3 numerical features, after binned
+#x_binned = torch.tensor([
+# [1,4,2],
+# [0,3,1],
+# [2,5,0],
+# [1,1,1],
+# [0,2,2],
+# ], dtype=torch.long) # shape(5,3)
+# )
+#
+#y = np.array([0,1,0,1,0]) # classification target
+#
+#
+# the number of categories in each column
+#num_bins = [3,6,3]
+#embedding_dim = 4
+#
+#create embedding layers (rach feature has one embedding)
+#embeddings = nn.ModuleList([
+#                 nn.Embedding(num_embeddings = n, embedding_dim=embedding_dim)
+#                 for n in num_bins
+#        ])
+#
+#with torch.no_grad():
+#    embeddings = []
+#    for idx, emb in enumerate(embeddings):
+#        tmp = emd(x_binned[:, idx])
+#        embeddings.append(tmp)
+#    x_embed = torch.cat(embeddings,dim=1) # shape: (5, 3*4)
+#    x_np = x_embed.numpy() # change to numpy, feed to xgboost
+#
+#X_train, X_test, y_train, y_test = train_test_split(x_np, y, test_size=0.4, random_state=42)
+#
+#model = xgb.XGBClassifier()
+#model.fit(X_train, y_train)
+#predict
+#y_pred = model.predict(X_test)
+#
+#from sklearn.metrics import accuracy_score
+#print("Accuracy:", accuracy_score(y_test, y_pred))
 
 
+#----------------------------------------------------------------------
+#
+#----------------------------------------------------------------------
 
+
+#----------------------------------------------------------------------
+#
+#----------------------------------------------------------------------
+
+
+#----------------------------------------------------------------------
+#
+#----------------------------------------------------------------------
+
+
+#----------------------------------------------------------------------
+#
+#----------------------------------------------------------------------
+
+
+#----------------------------------------------------------------------
+#
+#----------------------------------------------------------------------
+
+
+#----------------------------------------------------------------------
+#
+#----------------------------------------------------------------------
+
+
+#----------------------------------------------------------------------
+#
+#----------------------------------------------------------------------
+
+
+#----------------------------------------------------------------------
+#
+#----------------------------------------------------------------------
+
+
+#----------------------------------------------------------------------
+#
+#----------------------------------------------------------------------
 
 
 
