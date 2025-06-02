@@ -340,7 +340,7 @@ class NumericEmbedding(nn.Module):
         return self.linear(x)
 
 
-def train(model, optimizer, criterion, dataLoader, epochs=10):
+def train(model, optimizer, criterion, dataLoader, epochs=3):
     for epoch in range(epochs):
         model.train()
         ttl_loss = 0.0
@@ -362,7 +362,7 @@ def train(model, optimizer, criterion, dataLoader, epochs=10):
 
 def predict(model, input):
     model.eval()
-    with torch.no_grad:
+    with torch.no_grad():
         rst = model(input)
         return rst
 
