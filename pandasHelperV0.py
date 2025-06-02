@@ -252,7 +252,7 @@ def testModel(name, model, evaluate_function, X_test, y_test):
 #-----------------------------------------------------------------------
 # draw figure
 #-----------------------------------------------------------------------
-def getHeatMapv0(df, df_name, is_numeric_only=True, need_plot=True):
+def getHeatMapv0(df, df_name, is_numeric_only=True, need_plot=False):
     print("{0}".format(df_name))
     corr = df.corr(numeric_only=is_numeric_only)
     getDatasetInfo(corr, "corr")
@@ -260,14 +260,14 @@ def getHeatMapv0(df, df_name, is_numeric_only=True, need_plot=True):
         sns.heatmap(corr, annot=True, fmt=".2f", square=True, linewidths=.5)
         plt.show()
 
-def drawBoxplot(df, col_name, fig_size_a=8, fig_size_b=6, need_plot=True):
+def drawBoxplot(df, col_name, fig_size_a=8, fig_size_b=6, need_plot=False):
     plt.figure(figsize=(fig_size_a, fig_size_a))
     sns.boxplot(x=df[col_name])
     plt.title('Boxplot for {0}'.format(col_name))
     if need_plot == True:
         plt.show()
 
-def drawScatterplot(df, col_name_x, col_name_y, fig_size_a=8, fig_size_b=6, need_plot=True):
+def drawScatterplot(df, col_name_x, col_name_y, fig_size_a=8, fig_size_b=6, need_plot=False):
     plt.figure(figsize=(fig_size_a, fig_size_a))
     sns.regplot(x=df[col_name_x], y=df[col_name_y], scatter_kws={'alpha': 0.5}, line_kws={"color": "darkblue"})
     plt.title('Scatter plot - {0} vs {1} with regression line'.format(col_name_x, col_name_y))
@@ -277,7 +277,7 @@ def drawScatterplot(df, col_name_x, col_name_y, fig_size_a=8, fig_size_b=6, need
     if need_plot == True:
         plt.show()
 
-def drawHistogram(df, col_name, fig_size_a=8, fig_size_b=6, this_color='g', num_of_bins=100, need_plot=True):
+def drawHistogram(df, col_name, fig_size_a=8, fig_size_b=6, this_color='g', num_of_bins=100, need_plot=False):
     plt.figure(figsize=(fig_size_a, fig_size_a))
     sns.hisplot(df[col_name], color=this_color, kde=True, bin=num_of_bins)
     plt.title('Histogram for {0}'.format(col_name))
@@ -687,7 +687,7 @@ class TransformerRegressor(nn.Module):
         # src shape: (batch_size, seq_len, input_dim)
         src = self.linear_in(src) * math.sqrt(self.d_model)
         output = self.transformer(src)
-        output = output.mean(dim=1)  # Average over sequence
+        #output = output.mean(dim=1)  # Average over sequence
         return self.linear_out(output)
 
 
