@@ -21,9 +21,9 @@ class MyBatchNorm(nn.Module):
             self.register_parameter('bias', None)
 
         if self.tracking_running_statcks:
-            self.register_parameter('running_mean', torch.zeros(num_features))
-            self.register_parameter('running_var', torch.ones(num_features))
-            self.register_parameter('num_batches_tracked', torch.tensor(0, dtype=torch.long))
+            self.register_buffer('running_mean', torch.zeros(num_features))
+            self.register_buffer('running_var', torch.ones(num_features))
+            self.register_buffer('num_batches_tracked', torch.tensor(0, dtype=torch.long))
         else:
             self.register_parameter('running_mean', None)
             self.register_parameter('running_var', None)
@@ -45,9 +45,9 @@ class MyBatchNorm(nn.Module):
             if self.tracking_running_statcks:
                 with torch.no_grad():
                     self.running_mean = (1 - self.momentum) * self.running_mean \
-                                        + self.momentum * batch_mean.squueze()
+                                        + self.momentum * batch_mean.squeeze()
                     self.running_var = (1 - self.momentum) * self.running_var \
-                                        + self.momentum * batch_var.squueze()
+                                        + self.momentum * batch_var.squeeze()
                     self.num_batches_tracked += 1
 
                 mean = batch_mean
