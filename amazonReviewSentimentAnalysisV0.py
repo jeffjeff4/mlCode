@@ -128,7 +128,8 @@ for epoch in range(epochs):
         print(f'epoch {epoch}: loss = {loss:.4f}')
 
 # --- predict ---
-preds = pdh.predict(model, X_tensor)
+tmp_preds = pdh.predict(model, X_tensor)
+preds = torch.argmax(tmp_preds, axis=1)
 print(f"prediction: {preds.tolist()}")
 print(f"ground truth: {y.tolist()}")
 
