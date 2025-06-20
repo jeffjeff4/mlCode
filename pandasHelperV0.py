@@ -225,6 +225,57 @@ def removeOutlierV1(df_in, col_name, threshold=3.0):
     df_in.loc[mask, col_name] = df_in[col_name].median()
     return
 
+
+##import pandas as pd
+##from sklearn.model_selection import train_test_split
+##from sklearn.preprocessing import StandardScaler
+##
+### 1. Load data
+##data = pd.read_csv("/Users/shizhefu0/Desktop/ml/data/##deepseek_csv_v0.txt")
+##print("data = ")
+##print(data)
+##print('\n')
+##
+####age,income,gender,purchase_history,target
+####25,50000,Male,3,1
+####30,80000,Female,5,1
+####22,30000,Male,1,0
+####35,120000,Female,7,1
+####28,45000,Male,2,0
+####40,95000,Female,8,1
+####19,20000,Male,0,0
+####33,110000,Female,6,1
+####26,40000,Male,1,0
+####45,150000,Female,10,1
+####19,20000,Male,0,0
+####28,45000,Male,2,0
+####26,40000,Male,1,0
+##
+#--------------------------------------------------------
+# drop duplicate
+#--------------------------------------------------------
+
+### 2. Clean data
+##data.drop_duplicates(inplace=True)
+##
+##print('data.drop_duplicates')
+##print(data)
+##print('\n')
+##
+#--------------------------------------------------------
+# go through each column, and replacing na with median
+#--------------------------------------------------------
+#
+##for column in data.columns:
+##    print("data[column].dtype = ", data[column].dtype)
+##    if data[column].dtype in ['number', 'int8', 'int64', ##'float32', 'float16']:
+##        data.fillna(data[column].median(), inplace=True)
+##
+##print('data after repalcing na with median')
+##print(data)
+##print('\n')
+
+
 #--------------------------------------------------------
 # non numerical feature encoding
 #--------------------------------------------------------
