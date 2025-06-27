@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 
 # 1. Load data
-data = pd.read_csv("/Users/shizhefu0/Desktop/ml/data/deepseek_csv_v0.txt")
+data = pd.read_csv("/csv_v0.txt")
 print("data = ")
 print(data)
 print('\n')

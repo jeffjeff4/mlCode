@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 #%matplotlib inline
 
-blobs = pd.read_csv('//ml//data//other//kmeans_blobs.csv')
+blobs = pd.read_csv('//Users//shizhefu0//Desktop//ml//data//other//kmeans_blobs.csv')
 colnames = list(blobs.columns[1:-1])
 blobs.head()
 

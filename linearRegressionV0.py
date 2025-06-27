@@ -7,7 +7,7 @@ import pandas as pd
 import seaborn as sns
 plt.rcParams['figure.figsize'] = (12, 8)
 
-data = pd.read_csv("//ml//code//python//Linear-Regression-with-NumPy//bike_sharing_data.txt")
+data = pd.read_csv("//Users//shizhefu0//Desktop//ml//code//python//Linear-Regression-with-NumPy//bike_sharing_data.txt")
 data.head() #for first 5 rows
 
 data.info() # for information of data

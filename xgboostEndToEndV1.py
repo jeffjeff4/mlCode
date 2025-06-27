@@ -8,6 +8,7 @@ from sklearn.metrics import ndcg_score
 from sklearn.model_selection import train_test_split
 
 
+# 1-8: Generate the DataFrame with 100 samples
 def generate_data(num_samples=100, p0=0.3, p1=0.3):
     # Generate random user_ids (10 unique users)
     user_ids = [f"user_{random.randint(1, 10)}" for _ in range(num_samples)]
@@ -72,6 +73,7 @@ def generate_data(num_samples=100, p0=0.3, p1=0.3):
     return df
 
 
+# 9-10: Create sequence features and group data
 def prepare_ranking_data(df):
     # Group by user_id and sort by timestamp
     df = df.groupby('user_id').apply(lambda x: x.sort_values('time_stamp')).reset_index(drop=True)
@@ -96,6 +98,7 @@ def create_samples(df, threshold=4):
     return df
 
 
+# 12-16: XGBoost Ranking Model with NDCG
 def train_xgboost_ranking(df):
     # Encode categorical features
     le_user = LabelEncoder()
@@ -133,15 +136,11 @@ def train_xgboost_ranking(df):
 
     # Ranking parameters
     params = {
-        'objective': 'rank:pairwise',
+        'objective': 'rank:ndcg',
         'eval_metric': 'ndcg@5',
         'eta': 0.1,
         'max_depth': 6,
-        'gamma': 1.0,
-        'min_child_weight': 0.1,
-        'subsample': 0.8,
-        'colsample_bytree': 0.8,
-        'seed': 42
+        'ndcg_exp_gain': 'true'
     }
 
     # Train model
