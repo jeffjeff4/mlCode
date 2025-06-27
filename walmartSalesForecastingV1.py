@@ -8,9 +8,6 @@ from tensorflow.python.ops.numpy_ops.np_dtypes import float64
 
 #from walmartSalesForecastingV0 import num_rows_before, numerical_cols
 
-sys.path.append("//Users//shizhefu0//Desktop//ml//code//github_jeffjeff4")
-print(sys.path)
-import pandasHelperV0 as pdh
 
 import string
 from lib2to3.btm_utils import tokens
@@ -74,10 +71,10 @@ MODEL_DIM = 128
 NUM_LAYERS = 4
 OUTPUT_DIM = 1
 
-df_features = pd.read_csv("/Users/shizhefu0/Desktop/ml/data/walmart-sales-forecast/features.csv")
-df_stores = pd.read_csv("/Users/shizhefu0/Desktop/ml/data/walmart-sales-forecast/stores.csv")
-train = pd.read_csv("/Users/shizhefu0/Desktop/ml/data/walmart-sales-forecast/train.csv")
-test = pd.read_csv("/Users/shizhefu0/Desktop/ml/data/walmart-sales-forecast/test.csv")
+df_features = pd.read_csv("/ml/data/walmart-sales-forecast/features.csv")
+df_stores = pd.read_csv("/ml/data/walmart-sales-forecast/stores.csv")
+train = pd.read_csv("/ml/data/walmart-sales-forecast/train.csv")
+test = pd.read_csv("/ml/data/walmart-sales-forecast/test.csv")
 
 pdh.getDfInfo(df_features, "features")
 pdh.getDfInfo(df_stores, "stores")

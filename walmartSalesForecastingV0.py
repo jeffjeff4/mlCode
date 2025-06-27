@@ -1,8 +1,3 @@
-import sys
-sys.path.append("//Users//shizhefu0//Desktop//ml//code//github_jeffjeff4")
-print(sys.path)
-import pandasHelperV0 as pdh
-
 import string
 from lib2to3.btm_utils import tokens
 
@@ -39,10 +34,10 @@ import re
 
 import torch
 
-df_features = pd.read_csv("/Users/shizhefu0/Desktop/ml/data/walmart-sales-forecast/features.csv")
-df_stores = pd.read_csv("/Users/shizhefu0/Desktop/ml/data/walmart-sales-forecast/stores.csv")
-train = pd.read_csv("/Users/shizhefu0/Desktop/ml/data/walmart-sales-forecast/train.csv")
-test = pd.read_csv("/Users/shizhefu0/Desktop/ml/data/walmart-sales-forecast/test.csv")
+df_features = pd.read_csv("/ml/data/walmart-sales-forecast/features.csv")
+df_stores = pd.read_csv("/ml/data/walmart-sales-forecast/stores.csv")
+train = pd.read_csv("/ml/data/walmart-sales-forecast/train.csv")
+test = pd.read_csv("/ml/data/walmart-sales-forecast/test.csv")
 
 pdh.getDfInfo(df_features, "features")
 pdh.getDfInfo(df_stores, "stores")
