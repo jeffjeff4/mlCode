@@ -31,11 +31,15 @@ def read_fvecs_chunked(filename, chunk_size=100000):
 #xb = read_fvecs('./sift/sift_base.fvecs')
 #xb = faiss.read_fvec_format('./sift/sift_base.fvecs')
 xb = read_fvecs_chunked(folder + "/sift_base.fvecs")
+BASE_NUM_RECORDS = 1000
+xb = xb[:BASE_NUM_RECORDS, ]
 
 
 # queries
-xq = read_fvecs(folder + "/sift_query.fvecs')[0].reshape(1, -1)")
-xq_full = read_fvecs(folder + "/sift/sift_query.fvecs")
+xq = read_fvecs(folder + "sift_query.fvecs")[0].reshape(1, -1)
+xq_full = read_fvecs(folder + "sift_query.fvecs")
+QUERY_NUM_RECORDS = 10
+xq_full = xq_full[:QUERY_NUM_RECORDS, ]
 
 # setup our HNSW parameters
 d = 128  # vector size

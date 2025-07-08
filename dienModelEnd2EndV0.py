@@ -527,7 +527,11 @@ class InterestEvolutionLayerSimple(nn.Module):
         self.attention = AttentionLayer(hidden_dim, hidden_dim // 2)
 
         # Optional: Add target item influence through a separate transformation
-        self.target_transform = nn.Linear(input_dim, hidden_dim // 2)
+        #self.target_transform = nn.Linear(input_dim, hidden_dim // 2)
+        # change for dimension
+        self.target_transform = nn.Linear(input_dim, hidden_dim)
+
+        #self.target_proj = nn.Linear(embedding_dim, hidden_size)  # hidden_size = 256
 
     def forward(self, sequence, target_item, mask=None):
         # sequence: (batch_size, seq_len, input_dim)
@@ -545,7 +549,6 @@ class InterestEvolutionLayerSimple(nn.Module):
         return final_state, attention_weights
 
 
-# If you want to use the simpler version, update the DIENModel class:
 class DIENModelSimple(nn.Module):
     def __init__(self, n_users, n_products, embed_dim=64, text_embed_dim=128,
                  hidden_dim=256, seq_len=10):
@@ -577,8 +580,8 @@ class DIENModelSimple(nn.Module):
         )
 
         # Final prediction layers
-        # With simple version: evolved_interest has dimension hidden_dim // 2
-        evolved_interest_dim = hidden_dim // 2
+        # With InterestEvolutionLayerSimple, evolved_interest has dimension hidden_dim
+        evolved_interest_dim = hidden_dim
         feature_dim = embed_dim + evolved_interest_dim + self.input_dim
 
         self.prediction_layers = nn.Sequential(
@@ -588,8 +591,9 @@ class DIENModelSimple(nn.Module):
             nn.Linear(hidden_dim, hidden_dim // 2),
             nn.ReLU(),
             nn.Dropout(0.2),
-            nn.Linear(hidden_dim // 2, 1),
-            nn.Sigmoid()
+            #nn.Linear(hidden_dim // 2, 1),
+            #nn.Sigmoid()
+            nn.Linear(hidden_dim // 2, 1)
         )
 
         # Initialize weights
@@ -662,7 +666,11 @@ class DIENModelSimple(nn.Module):
         # Prediction
         output = self.prediction_layers(final_features)
 
-        return output.squeeze(), attention_weights
+        # FIXED: Use squeeze(-1) to only remove the last dimension, preserving batch dimension
+        # This ensures output shape is (batch_size,) instead of potentially () for batch_size=1
+        return output.squeeze(-1), attention_weights
+
+
 
 # 4. Training Sample Generation for DIEN
 class DIENTrainingSampleGenerator:
@@ -731,7 +739,9 @@ class DIENTrainingSampleGenerator:
 def train_dien_model(model, text_embedder, train_samples, val_samples,
                      epochs=50, lr=0.001, batch_size=256):
     optimizer = optim.Adam(model.parameters(), lr=lr)
-    criterion = nn.BCELoss()
+    #criterion = nn.BCELoss()
+    # Change BCELoss to BCEWithLogitsLoss
+    criterion = nn.BCEWithLogitsLoss()
 
     train_losses = []
     val_losses = []
@@ -866,14 +876,18 @@ def evaluate_dien_model(model, text_embedder, test_samples):
             target_text_emb = text_embedder([sample['target_comments']]).detach()
             sequence_text_emb = text_embedder(sample['sequence_comments']).unsqueeze(0).detach()
 
-            prediction, _ = model(
+            #prediction, _ = model(
+            prediction_logits, _ = model(
                 user_id, target_product_id, sequence_product_ids,
                 sequence_text_emb, sequence_prices, sequence_ranking_scores,
                 sequence_ranking_positions, target_text_emb, target_price,
                 target_ranking_score, target_ranking_position, sequence_mask
             )
 
-            predictions.append(prediction.item())
+            # Apply sigmoid to convert logits to probabilities for metrics
+            prediction_prob = torch.sigmoid(prediction_logits).item()
+
+            predictions.append(prediction_prob)
             true_labels.append(sample['is_clicked'])
 
     # Calculate metrics
