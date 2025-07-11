@@ -1,0 +1,3 @@
+1 user:user_age_25-30:1 user:user_gender_male:1 item:item_brand_apple:1 item:item_category_phone:1 context:weekend_1:1
+0 user:user_age_18-24:1 user:user_gender_female:1 item:item_brand_samsung:1 item:item_category_phone:1 context:weekend_0:1
+1 user:user_age_25-30:1 user:user_gender_male:1 item:item_brand_apple:1 item:item_category_laptop:1 context:weekend_1:1
