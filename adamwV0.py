@@ -1,170 +1,265 @@
-import math
+
+
 import torch
-from torch.optim import Optimizer
+import torch.nn as nn
+from torch.utils.data import Dataset, DataLoader
+import numpy as np
+
+# Custom dataset with numerical, categorical, and embedding features
+class CustomDataset(Dataset):
+    def __init__(self, n_samples=1000, n_num=5, n_cat=3, n_emb=2):
+        super().__init__()
+        self.num_data = torch.randn(n_samples, n_num)
+        self.cat_data = torch.randint(0, 5, (n_samples, n_cat))
+        self.emb_data = torch.randn(n_samples, n_emb)
+        self.labels = (
+            self.num_data.sum(dim=1)
+            + self.cat_data.float().sum(dim=1)
+            + self.emb_data.sum(dim=1)
+            + torch.randn(n_samples) * 0.5
+        ).unsqueeze(1)
+
+    def __len__(self):
+        return len(self.labels)
+
+    def __getitem__(self, idx):
+        return self.num_data[idx], self.cat_data[idx], self.emb_data[idx], self.labels[idx]
+
+# Simple MLP model for regression
+class MLPModel(nn.Module):
+    def __init__(self, n_num=5, n_cat=3, n_emb=2, cat_vocab=5, cat_emb_dim=4):
+        super().__init__()
+        self.emb_layers = nn.ModuleList([
+            nn.Embedding(cat_vocab, cat_emb_dim) for _ in range(n_cat)
+        ])
+        total_input_dim = n_num + n_cat * cat_emb_dim + n_emb
+        self.net = nn.Sequential(
+            nn.Linear(total_input_dim, 64),
+            nn.ReLU(),
+            nn.Linear(64, 32),
+            nn.ReLU(),
+            nn.Linear(32, 1)
+        )
+
+    def forward(self, num, cat, emb):
+        cat_emb = [self.emb_layers[i](cat[:, i]) for i in range(cat.size(1))]
+        x = torch.cat([num] + cat_emb + [emb], dim=1)
+        return self.net(x)
 
 
-class AdamW(Optimizer):
-    """Implements AdamW algorithm.
+class CustomOptimizer:
+    def __init__(self, params, lr=0.01):
+        self.params = list(params)
+        self.lr = lr
 
-    AdamW is a variant of Adam with correct weight decay implementation.
+    def zero_grad(self):
+        for p in self.params:
+            if p.grad is not None:
+                p.grad.detach_()
+                p.grad.zero_()
 
-    Args:
-        params (iterable): iterable of parameters to optimize or dicts defining
-            parameter groups
-        lr (float, optional): learning rate (default: 1e-3)
-        betas (Tuple[float, float], optional): coefficients used for computing
-            running averages of gradient and its square (default: (0.9, 0.999))
-        eps (float, optional): term added to the denominator to improve
-            numerical stability (default: 1e-8)
-        weight_decay (float, optional): weight decay coefficient (default: 1e-2)
-        amsgrad (boolean, optional): whether to use the AMSGrad variant of this
-            algorithm from the paper `On the Convergence of Adam and Beyond`_
-            (default: False)
-    """
+class SGD(CustomOptimizer):
+    def step(self):
+        for p in self.params:
+            if p.grad is not None:
+                p.data -= self.lr * p.grad
 
-    def __init__(self, params, lr=1e-3, betas=(0.9, 0.999), eps=1e-8,
-                 weight_decay=1e-2, amsgrad=False):
-        if not 0.0 <= lr:
-            raise ValueError(f"Invalid learning rate: {lr}")
-        if not 0.0 <= eps:
-            raise ValueError(f"Invalid epsilon value: {eps}")
-        if not 0.0 <= betas[0] < 1.0:
-            raise ValueError(f"Invalid beta parameter at index 0: {betas[0]}")
-        if not 0.0 <= betas[1] < 1.0:
-            raise ValueError(f"Invalid beta parameter at index 1: {betas[1]}")
-        if not 0.0 <= weight_decay:
-            raise ValueError(f"Invalid weight_decay value: {weight_decay}")
-        defaults = dict(lr=lr, betas=betas, eps=eps,
-                        weight_decay=weight_decay, amsgrad=amsgrad)
-        super(AdamW, self).__init__(params, defaults)
+class SGDMomentum(CustomOptimizer):
+    def __init__(self, params, lr=0.01, momentum=0.9):
+        super().__init__(params, lr)
+        self.momentum = momentum
+        self.v = [torch.zeros_like(p) for p in self.params]
 
-    def __setstate__(self, state):
-        super(AdamW, self).__setstate__(state)
-        for group in self.param_groups:
-            group.setdefault('amsgrad', False)
-
-    @torch.no_grad()
-    def step(self, closure=None):
-        """Performs a single optimization step.
-
-        Args:
-            closure (callable, optional): A closure that reevaluates the model
-                and returns the loss.
-        """
-        loss = None
-        if closure is not None:
-            with torch.enable_grad():
-                loss = closure()
-
-        for group in self.param_groups:
-            params_with_grad = []
-            grads = []
-            exp_avgs = []
-            exp_avg_sqs = []
-            max_exp_avg_sqs = []
-            state_steps = []
-
-            beta1, beta2 = group['betas']
-
-            for p in group['params']:
-                if p.grad is None:
-                    continue
-                params_with_grad.append(p)
-                if p.grad.is_sparse:
-                    raise RuntimeError('AdamW does not support sparse gradients')
-                grads.append(p.grad)
-
-                state = self.state[p]
-
-                # State initialization
-                if len(state) == 0:
-                    state['step'] = 0
-                    state['exp_avg'] = torch.zeros_like(p, memory_format=torch.preserve_format)
-                    state['exp_avg_sq'] = torch.zeros_like(p, memory_format=torch.preserve_format)
-                    if group['amsgrad']:
-                        state['max_exp_avg_sq'] = torch.zeros_like(p, memory_format=torch.preserve_format)
-
-                exp_avgs.append(state['exp_avg'])
-                exp_avg_sqs.append(state['exp_avg_sq'])
-
-                if group['amsgrad']:
-                    max_exp_avg_sqs.append(state['max_exp_avg_sq'])
-
-                # Update the steps for each param group update
-                state['step'] += 1
-                state_steps.append(state['step'])
-
-            adamw(params_with_grad,
-                  grads,
-                  exp_avgs,
-                  exp_avg_sqs,
-                  max_exp_avg_sqs,
-                  state_steps,
-                  amsgrad=group['amsgrad'],
-                  beta1=beta1,
-                  beta2=beta2,
-                  lr=group['lr'],
-                  weight_decay=group['weight_decay'],
-                  eps=group['eps'])
-
-        return loss
+    def step(self):
+        for i, p in enumerate(self.params):
+            if p.grad is not None:
+                self.v[i] = self.momentum * self.v[i] - self.lr * p.grad
+                p.data += self.v[i]
 
 
-def adamw(params,
-          grads,
-          exp_avgs,
-          exp_avg_sqs,
-          max_exp_avg_sqs,
-          state_steps,
-          amsgrad,
-          beta1,
-          beta2,
-          lr,
-          weight_decay,
-          eps):
-    """Functional API that performs AdamW algorithm computation."""
+class Adam(CustomOptimizer):
+    def __init__(self, params, lr=0.001, betas=(0.9, 0.999), eps=1e-8, weight_decay=0.0):
+        super().__init__(params, lr)
+        self.beta1, self.beta2 = betas
+        self.eps = eps
+        self.weight_decay = weight_decay
+        self.m = [torch.zeros_like(p) for p in self.params]
+        self.v = [torch.zeros_like(p) for p in self.params]
+        self.t = 0
 
-    for i, param in enumerate(params):
-        grad = grads[i]
-        exp_avg = exp_avgs[i]
-        exp_avg_sq = exp_avg_sqs[i]
-        step = state_steps[i]
+    def step(self):
+        self.t += 1
+        for i, p in enumerate(self.params):
+            if p.grad is None:
+                continue
 
-        # Perform stepweight decay
-        param.mul_(1 - lr * weight_decay)
+            # ✅ L2 weight decay: add to gradient
+            grad = p.grad + self.weight_decay * p.data
 
-        # Decay the first and second moment running average coefficient
-        exp_avg.mul_(beta1).add_(grad, alpha=1 - beta1)
-        exp_avg_sq.mul_(beta2).addcmul_(grad, grad, value=1 - beta2)
+            self.m[i] = self.beta1 * self.m[i] + (1 - self.beta1) * grad
+            self.v[i] = self.beta2 * self.v[i] + (1 - self.beta2) * grad ** 2
 
-        if amsgrad:
-            # Maintains the maximum of all 2nd moment running avg. till now
-            torch.maximum(max_exp_avg_sqs[i], exp_avg_sq, out=max_exp_avg_sqs[i])
-            # Use the max. for normalizing running avg. of gradient
-            denom = max_exp_avg_sqs[i].sqrt().add_(eps)
-        else:
-            denom = exp_avg_sq.sqrt().add_(eps)
+            m_hat = self.m[i] / (1 - self.beta1 ** self.t)
+            v_hat = self.v[i] / (1 - self.beta2 ** self.t)
 
-        bias_correction1 = 1 - beta1 ** step
-        bias_correction2 = 1 - beta2 ** step
-
-        step_size = lr / bias_correction1
-
-        param.addcdiv_(exp_avg, denom, value=-step_size)
+            p.data -= self.lr * m_hat / (v_hat.sqrt() + self.eps)
 
 
-#---------------------------------------
-#how to use it
-#---------------------------------------
+class AdamW(CustomOptimizer):
+    def __init__(self, params, lr=0.001, betas=(0.9, 0.999), eps=1e-8, weight_decay=0.01):
+        super().__init__(params, lr)
+        self.beta1, self.beta2 = betas
+        self.eps = eps
+        self.weight_decay = weight_decay
+        self.m = [torch.zeros_like(p) for p in self.params]
+        self.v = [torch.zeros_like(p) for p in self.params]
+        self.t = 0
 
-model = YourModel()
-optimizer = AdamW(model.parameters(), lr=0.001, weight_decay=0.01)
+    def step(self):
+        self.t += 1
+        for i, p in enumerate(self.params):
+            if p.grad is None:
+                continue
+
+            grad = p.grad  # ✅ NO weight decay added to grad
+
+            self.m[i] = self.beta1 * self.m[i] + (1 - self.beta1) * grad
+            self.v[i] = self.beta2 * self.v[i] + (1 - self.beta2) * grad ** 2
+
+            m_hat = self.m[i] / (1 - self.beta1 ** self.t)
+            v_hat = self.v[i] / (1 - self.beta2 ** self.t)
+
+            # ✅ Decoupled weight decay applied directly to weights
+            p.data -= self.lr * (m_hat / (v_hat.sqrt() + self.eps))
+            p.data -= self.lr * self.weight_decay * p.data
+
+
+class RMSprop(CustomOptimizer):
+    def __init__(self, params, lr=0.01, alpha=0.99, eps=1e-8):
+        super().__init__(params, lr)
+        self.alpha = alpha
+        self.eps = eps
+        self.avg_sq = [torch.zeros_like(p) for p in self.params]
+
+    def step(self):
+        for i, p in enumerate(self.params):
+            if p.grad is None:
+                continue
+            g = p.grad
+            self.avg_sq[i] = self.alpha * self.avg_sq[i] + (1 - self.alpha) * g ** 2
+            p.data -= self.lr * g / (self.avg_sq[i].sqrt() + self.eps)
+
+
+class Adagrad(CustomOptimizer):
+    def __init__(self, params, lr=0.01, eps=1e-10):
+        super().__init__(params, lr)
+        self.eps = eps
+        self.G = [torch.zeros_like(p) for p in self.params]
+
+    def step(self):
+        for i, p in enumerate(self.params):
+            if p.grad is None:
+                continue
+            g = p.grad
+            self.G[i] += g ** 2
+            adjusted_lr = self.lr / (self.G[i].sqrt() + self.eps)
+            p.data -= adjusted_lr * g
+
+
+class Nadam(CustomOptimizer):
+    def __init__(self, params, lr=0.002, betas=(0.9, 0.999), eps=1e-8):
+        super().__init__(params, lr)
+        self.beta1, self.beta2 = betas
+        self.eps = eps
+        self.m = [torch.zeros_like(p) for p in self.params]
+        self.v = [torch.zeros_like(p) for p in self.params]
+        self.t = 0
+
+    def step(self):
+        self.t += 1
+        for i, p in enumerate(self.params):
+            if p.grad is None:
+                continue
+            g = p.grad
+            self.m[i] = self.beta1 * self.m[i] + (1 - self.beta1) * g
+            self.v[i] = self.beta2 * self.v[i] + (1 - self.beta2) * g ** 2
+
+            m_hat = (self.beta1 * self.m[i] + (1 - self.beta1) * g) / (1 - self.beta1 ** self.t)
+            v_hat = self.v[i] / (1 - self.beta2 ** self.t)
+
+            p.data -= self.lr * m_hat / (v_hat.sqrt() + self.eps)
+
+
+import matplotlib.pyplot as plt
+
+# Dataset and model config
+dataset = CustomDataset(n_samples=1000)
+train_loader = DataLoader(dataset, batch_size=64, shuffle=True)
+
+# Simple train-test split
+train_set, test_set = torch.utils.data.random_split(dataset, [800, 200])
+train_loader = DataLoader(train_set, batch_size=64, shuffle=True)
+test_loader = DataLoader(test_set, batch_size=64)
 
 # Training loop
-for epoch in range(epochs):
-    for batch in dataloader:
-        optimizer.zero_grad()
-        loss = model(batch)
-        loss.backward()
-        optimizer.step()
+def train_model(optimizer_class, optimizer_name, model_seed=0, epochs=20, **opt_kwargs):
+    torch.manual_seed(model_seed)
+    model = MLPModel()
+    criterion = nn.MSELoss()
+    optimizer = optimizer_class(model.parameters(), **opt_kwargs)
 
+    train_losses = []
+    test_losses = []
+
+    for epoch in range(epochs):
+        model.train()
+        total_loss = 0.0
+        for num, cat, emb, label in train_loader:
+            optimizer.zero_grad()
+            output = model(num, cat, emb)
+            loss = criterion(output, label)
+            loss.backward()
+            optimizer.step()
+            total_loss += loss.item() * num.size(0)
+        train_losses.append(total_loss / len(train_loader.dataset))
+
+        # Evaluate on test set
+        model.eval()
+        total_test_loss = 0.0
+        with torch.no_grad():
+            for num, cat, emb, label in test_loader:
+                output = model(num, cat, emb)
+                loss = criterion(output, label)
+                total_test_loss += loss.item() * num.size(0)
+        test_losses.append(total_test_loss / len(test_loader.dataset))
+
+    return train_losses, test_losses
+
+
+# Run experiments
+optimizers_to_compare = {
+    "Adam (no decay)": (Adam, {"lr": 0.001, "weight_decay": 0.0}),
+    "Adam (L2 0.01)": (Adam, {"lr": 0.001, "weight_decay": 0.01}),
+    "AdamW (wd=0.01)": (AdamW, {"lr": 0.001, "weight_decay": 0.01}),
+    "AdamW (wd=0.1)": (AdamW, {"lr": 0.001, "weight_decay": 0.1}),
+}
+
+results = {}
+
+for name, (opt_class, kwargs) in optimizers_to_compare.items():
+    print(f"Training with {name}")
+    train_loss, test_loss = train_model(opt_class, name, **kwargs)
+    results[name] = {"train": train_loss, "test": test_loss}
+
+# Plot
+plt.figure(figsize=(12, 6))
+for name in results:
+    plt.plot(results[name]["train"], label=f"{name} - Train")
+    plt.plot(results[name]["test"], linestyle="--", label=f"{name} - Test")
+plt.xlabel("Epoch")
+plt.ylabel("MSE Loss")
+plt.title("Adam vs AdamW (Different Weight Decays)")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
