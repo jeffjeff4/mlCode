@@ -411,7 +411,79 @@ print(f"ELU output: {output_tensor}\n")
 
 #-------------------------------------------------------
 
+import numpy as np
+import matplotlib.pyplot as plt
 
+
+def elu(x, alpha=1.0):
+    """
+    Exponential Linear Unit (ELU) activation function.
+
+    Args:
+        x (numpy.ndarray or float): Input value(s).
+        alpha (float): Hyperparameter, typically 1.0.
+
+    Returns:
+        numpy.ndarray or float: Output of the ELU function.
+    """
+    return np.where(x > 0, x, alpha * (np.exp(x) - 1))
+
+
+# Generate input values
+x = np.linspace(-5, 5, 100)
+
+# Calculate ELU output
+y_elu = elu(x)
+
+# Plotting the ELU function
+plt.figure(figsize=(7, 4))
+plt.plot(x, y_elu, label='ELU ($\\alpha=1.0$)', color='purple')
+plt.title('ELU Activation Function')
+plt.xlabel('x')
+plt.ylabel('ELU(x)')
+plt.grid(True)
+plt.axhline(0, color='gray', linestyle='--', linewidth=0.7)
+plt.axvline(0, color='gray', linestyle='--', linewidth=0.7)
+plt.legend()
+plt.show()
+
+#-------------------------------------------------------
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def elu_derivative(x, alpha=1.0):
+    """
+    Derivative of the Exponential Linear Unit (ELU) activation function.
+
+    Args:
+        x (numpy.ndarray or float): Input value(s).
+        alpha (float): Hyperparameter, typically 1.0.
+
+    Returns:
+        numpy.ndarray or float: Output of the ELU derivative.
+    """
+    return np.where(x > 0, 1, alpha * np.exp(x))
+
+
+# Generate input values for derivative
+x_deriv = np.linspace(-5, 5, 100)
+
+# Calculate ELU derivative output
+y_elu_deriv = elu_derivative(x_deriv)
+
+# Plotting the ELU derivative function
+plt.figure(figsize=(7, 4))
+plt.plot(x_deriv, y_elu_deriv, label='ELU Derivative ($\\alpha=1.0$)', color='orange')
+plt.title('ELU Activation Function Derivative')
+plt.xlabel('x')
+plt.ylabel("ELU'(x)")
+plt.grid(True)
+plt.axhline(0, color='gray', linestyle='--', linewidth=0.7)
+plt.axvline(0, color='gray', linestyle='--', linewidth=0.7)
+plt.legend()
+plt.show()
 
 #-------------------------------------------------------
 # Generate some input values
@@ -439,21 +511,142 @@ output_tensor = gelu_activation(input_tensor)
 print(f"GELU input: {input_tensor}")
 print(f"GELU output: {output_tensor}\n")
 
+
 #-------------------------------------------------------
 
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm # For accurate CDF for comparison
+from scipy.special import erf # For accurate error function
+
+def gelu_accurate(x):
+    """
+    GELU activation function using the accurate CDF of the standard normal distribution.
+    Requires scipy.stats.norm.cdf.
+    """
+    return x * norm.cdf(x)
+
+def gelu_approximate(x):
+    """
+    GELU activation function using the tanh approximation.
+    This is the commonly used approximation in deep learning frameworks due to computational efficiency.
+    """
+    return 0.5 * x * (1 + np.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * x**3)))
+
+# Generate input values
+x = np.linspace(-5, 5, 100)
+
+# Calculate GELU using both methods
+y_gelu_accurate = gelu_accurate(x)
+y_gelu_approximate = gelu_approximate(x)
+
+# Plotting
+plt.figure(figsize=(8, 5))
+plt.plot(x, y_gelu_accurate, label='GELU (Accurate CDF)', color='blue')
+plt.plot(x, y_gelu_approximate, label='GELU (Tanh Approximation)', color='red', linestyle='--')
+plt.title('GELU Activation Function: Accurate vs. Approximation')
+plt.xlabel('x')
+plt.ylabel('GELU(x)')
+plt.grid(True)
+plt.axhline(0, color='gray', linestyle='--', linewidth=0.7)
+plt.axvline(0, color='gray', linestyle='--', linewidth=0.7)
+plt.legend()
+plt.show()
+
+#-------------------------------------------------------
+import numpy as np
+import matplotlib.pyplot as plt
+from scipy.stats import norm  # For accurate CDF and PDF
+
+
+def gelu_derivative_accurate(x):
+    """
+    Derivative of GELU activation function using accurate CDF and PDF.
+    """
+    return norm.cdf(x) + x * norm.pdf(x)
+
+
+def gelu_approximate(x):
+    """
+    GELU activation function using the tanh approximation.
+    (Repeated for context in derivative calculation)
+    """
+    return 0.5 * x * (1 + np.tanh(np.sqrt(2 / np.pi) * (x + 0.044715 * x ** 3)))
+
+
+def gelu_derivative_approximate(x):
+    """
+    Derivative of GELU activation function using the tanh approximation.
+    This involves the derivative of tanh(A(x)) where A(x) is the argument.
+    """
+    sqrt_2_pi = np.sqrt(2 / np.pi)
+    const = 0.044715
+
+    # A(x) argument for tanh
+    arg_tanh = sqrt_2_pi * (x + const * x ** 3)
+
+    # Derivative of A(x)
+    d_arg_tanh = sqrt_2_pi * (1 + 3 * const * x ** 2)
+
+    # tanh(A(x))
+    tanh_val = np.tanh(arg_tanh)
+
+    # sech^2(A(x)) = 1 - tanh^2(A(x))
+    sech_squared = 1 - tanh_val ** 2
+
+    # Derivative of gelu_approximate(x)
+    # Using product rule: 0.5 * [ (1 * (1 + tanh_val)) + (x * sech_squared * d_arg_tanh) ]
+    derivative = 0.5 * (1 + tanh_val) + 0.5 * x * sech_squared * d_arg_tanh
+    return derivative
+
+
+# Generate input values
+x_deriv = np.linspace(-5, 5, 100)
+
+# Calculate derivatives
+y_gelu_deriv_accurate = gelu_derivative_accurate(x_deriv)
+y_gelu_deriv_approximate = gelu_derivative_approximate(x_deriv)
+
+# Plotting
+plt.figure(figsize=(8, 5))
+plt.plot(x_deriv, y_gelu_deriv_accurate, label='GELU Derivative (Accurate)', color='blue')
+plt.plot(x_deriv, y_gelu_deriv_approximate, label='GELU Derivative (Approximate)', color='red', linestyle='--')
+plt.title('GELU Activation Function Derivative: Accurate vs. Approximation')
+plt.xlabel('x')
+plt.ylabel("GELU'(x)")
+plt.grid(True)
+plt.axhline(0, color='gray', linestyle='--', linewidth=0.7)
+plt.axvline(0, color='gray', linestyle='--', linewidth=0.7)
+plt.legend()
+plt.show()
 
 #-------------------------------------------------------
 # Generate some input values
-x = torch.linspace(-5, 5, 100)
+x = torch.linspace(-10000, 10000, 10000)
 
 # Create a Softmax activation function
 softmax_activation = nn.Softmax(dim=0) # dim=0 means apply Softmax across the first dimension (features/classes)
 
 # Example input tensor (logits for 3 classes)
-input_tensor_softmax = torch.tensor([1.0, 2.0, 3.0]) # A single sample with 3 logit scores
+input_tensor_softmax = torch.tensor(x) # A single sample with 3 logit scores
 
+#-------------------------------------
 # Apply the activation function
 output_tensor_softmax = softmax_activation(input_tensor_softmax)
+
+y = output_tensor_softmax.numpy()
+# Plotting
+plt.figure(figsize=(8, 5))
+plt.plot(x, y, label='Softmax', color='blue')
+plt.xlabel('x')
+plt.ylabel("Softmax'(x)")
+plt.grid(True)
+plt.axhline(0, color='gray', linestyle='--', linewidth=0.7)
+plt.axvline(0, color='gray', linestyle='--', linewidth=0.7)
+plt.legend()
+plt.show()
+
+#-------------------------------
 print(f"Softmax input (logits): {input_tensor_softmax}")
 print(f"Softmax output (probabilities): {output_tensor_softmax}")
 print(f"Sum of Softmax output probabilities: {torch.sum(output_tensor_softmax):.4f}\n")
@@ -468,3 +661,169 @@ print(f"Softmax batch output (probabilities):\n{output_batch_softmax}")
 print(f"Sum of probabilities for sample 1: {torch.sum(output_batch_softmax[0]):.4f}")
 print(f"Sum of probabilities for sample 2: {torch.sum(output_batch_softmax[1]):.4f}\n")
 
+
+#-------------------------------------------------------
+
+import numpy as np
+
+def softmax(z):
+    """
+    Softmax activation function.
+
+    Args:
+        z (numpy.ndarray): A 1D NumPy array of raw scores (logits).
+
+    Returns:
+        numpy.ndarray: A 1D NumPy array representing a probability distribution.
+    """
+    # Subtract the maximum value from z for numerical stability
+    # This does not change the output of softmax, but prevents overflow for large z values
+    exp_z = np.exp(z - np.max(z))
+    return exp_z / np.sum(exp_z)
+
+# Example usage
+scores = np.array([1.0, 2.0, 3.0])
+probabilities = softmax(scores)
+print(f"Input Scores (z): {scores}")
+print(f"Softmax Probabilities: {probabilities}")
+print(f"Sum of Probabilities: {np.sum(probabilities):.4f}")
+
+scores_large = np.array([100.0, 101.0, 102.0])
+probabilities_large = softmax(scores_large)
+print(f"\nInput Scores (large values): {scores_large}")
+print(f"Softmax Probabilities (with stability trick): {probabilities_large}")
+print(f"Sum of Probabilities: {np.sum(probabilities_large):.4f}")
+
+scores_negative = np.array([-1.0, -2.0, -3.0])
+probabilities_negative = softmax(scores_negative)
+print(f"\nInput Scores (negative values): {scores_negative}")
+print(f"Softmax Probabilities: {probabilities_negative}")
+print(f"Sum of Probabilities: {np.sum(probabilities_negative):.4f}")
+
+#-------------------------------------------------------
+
+import numpy as np
+
+
+def softmax(z):
+    """
+    Softmax activation function (re-defined for completeness).
+    """
+    exp_z = np.exp(z - np.max(z))
+    return exp_z / np.sum(exp_z)
+
+
+def softmax_derivative(z):
+    """
+    Calculates the Jacobian matrix of the Softmax function.
+
+    Args:
+        z (numpy.ndarray): A 1D NumPy array of raw scores (logits).
+
+    Returns:
+        numpy.ndarray: A 2D NumPy array (Jacobian matrix) where
+                       softmax_jacobian[i, k] = d(Softmax(z_i)) / d(z_k).
+    """
+    s = softmax(z)
+    K = len(z)
+    jacobian_matrix = np.zeros((K, K))
+
+    for i in range(K):
+        for k in range(K):
+            if i == k:
+                jacobian_matrix[i, k] = s[i] * (1 - s[i])
+            else:
+                jacobian_matrix[i, k] = -s[i] * s[k]
+
+    return jacobian_matrix
+
+
+# Example usage
+scores_deriv = np.array([1.0, 2.0, 3.0])
+softmax_output = softmax(scores_deriv)
+jacobian = softmax_derivative(scores_deriv)
+
+print(f"\nSoftmax Input (z): {scores_deriv}")
+print(f"Softmax Output (S): {softmax_output}")
+print(f"\nSoftmax Jacobian Matrix:")
+print(jacobian)
+
+
+# Verify one element: d(S_0)/d(z_0) = S_0 * (1 - S_0)
+print(f"S_0 * (1 - S_0): {softmax_output[0] * (1 - softmax_output[0])}")
+print(f"Jacobian[0,0]: {jacobian[0,0]}")
+
+# Verify another element: d(S_0)/d(z_1) = -S_0 * S_1
+print(f"-S_0 * S_1: {-softmax_output[0] * softmax_output[1]}")
+print(f"Jacobian[0,1]: {jacobian[0,1]}")
+
+#-------------------------------------------------------------------
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+def softmax(z):
+    """
+    Softmax activation function.
+    """
+    exp_z = np.exp(z - np.max(z))  # Numerical stability
+    return exp_z / np.sum(exp_z, axis=-1, keepdims=True)  # Ensure sum over last axis
+
+
+def softmax_derivative_element(s_i, s_k, i_equals_k):
+    """
+    Calculates a single element of the Softmax derivative.
+    """
+    if i_equals_k:
+        return s_i * (1 - s_i)
+    else:
+        return -s_i * s_k
+
+
+# --- Setup for plotting ---
+num_classes = 3
+# Vary the first input (z_0) over a range
+z0_values = np.linspace(-5, 5, 100)
+# Keep other inputs constant for simplicity
+z1_fixed = 0.0
+z2_fixed = 0.0
+
+# Store derivative values for each output S_i with respect to z_0
+deriv_s0_wrt_z0 = []
+deriv_s1_wrt_z0 = []
+deriv_s2_wrt_z0 = []
+
+# Loop through z0_values to calculate derivatives
+for z0_val in z0_values:
+    # Create the input vector for softmax at current z0_val
+    z_vector = np.array([z0_val, z1_fixed, z2_fixed])
+
+    # Calculate softmax output for this z_vector
+    s_output = softmax(z_vector)  # This will be [S0, S1, S2]
+
+    # Calculate derivatives with respect to z_0
+    deriv_s0_wrt_z0.append(softmax_derivative_element(s_output[0], s_output[0], True))  # dS0/dz0
+    deriv_s1_wrt_z0.append(softmax_derivative_element(s_output[1], s_output[0], False))  # dS1/dz0
+    deriv_s2_wrt_z0.append(softmax_derivative_element(s_output[2], s_output[0], False))  # dS2/dz0
+
+# Convert lists to numpy arrays for plotting
+deriv_s0_wrt_z0 = np.array(deriv_s0_wrt_z0)
+deriv_s1_wrt_z0 = np.array(deriv_s1_wrt_z0)
+deriv_s2_wrt_z0 = np.array(deriv_s2_wrt_z0)
+
+# --- Plotting ---
+plt.figure(figsize=(10, 6))
+plt.plot(z0_values, deriv_s0_wrt_z0, label='$\\frac{\\partial S_0}{\\partial z_0} = S_0(1-S_0)$', color='blue')
+plt.plot(z0_values, deriv_s1_wrt_z0, label='$\\frac{\\partial S_1}{\\partial z_0} = -S_1 S_0$', color='red')
+plt.plot(z0_values, deriv_s2_wrt_z0, label='$\\frac{\\partial S_2}{\\partial z_0} = -S_2 S_0$', color='green')
+
+plt.title('Softmax Derivative with respect to $z_0$ (while $z_1=0, z_2=0$)')
+plt.xlabel('Input $z_0$')
+plt.ylabel('Derivative Value')
+plt.grid(True)
+plt.axhline(0, color='gray', linestyle='--', linewidth=0.7)
+plt.axvline(0, color='gray', linestyle='--', linewidth=0.7)
+plt.legend()
+plt.ylim(-0.25, 0.25)  # Adjust y-limit for better visualization of the derivatives
+plt.show()
