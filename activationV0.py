@@ -189,6 +189,9 @@ plt.tight_layout()
 plt.show()
 #---------------------------------------------------------
 
+# Generate some input values
+x = torch.linspace(-5, 5, 100)
+
 # Create a Tanh activation function
 tanh_activation = nn.Tanh()
 
@@ -211,6 +214,117 @@ output_tensor = tanh_activation(input_tensor)
 print(f"Tanh input: {input_tensor}")
 print(f"Tanh output: {output_tensor}\n")
 
+#-------------------------------------------------------
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Tanh function
+def tanh(x):
+    return (np.exp(x) - np.exp(-x)) / (np.exp(x) + np.exp(-x))
+
+# Derivative of Tanh function
+def tanh_prime(x):
+    return 1 - tanh(x)**2
+
+x = np.linspace(-10, 10, 200)
+y_tanh = tanh(x)
+y_tanh_prime = tanh_prime(x)
+
+plt.figure(figsize=(12, 5))
+
+plt.subplot(1, 2, 1)
+plt.plot(x, y_tanh)
+plt.title('Tanh Function f(x)')
+plt.xlabel('x')
+plt.ylabel('f(x)')
+plt.grid(True)
+plt.axvline(0, color='gray', linestyle='--', linewidth=0.8)
+plt.axhline(0, color='gray', linestyle='--', linewidth=0.8)
+plt.axhline(1, color='gray', linestyle='--', linewidth=0.8)
+plt.axhline(-1, color='gray', linestyle='--', linewidth=0.8)
+
+plt.subplot(1, 2, 2)
+plt.plot(x, y_tanh_prime)
+plt.title("Derivative of Tanh Function f'(x)")
+plt.xlabel('x')
+plt.ylabel("f'(x)")
+plt.grid(True)
+plt.axvline(0, color='gray', linestyle='--', linewidth=0.8)
+plt.axhline(0, color='gray', linestyle='--', linewidth=0.8)
+plt.axhline(1, color='red', linestyle=':', linewidth=0.8, label='Max derivative = 1') # Max at x=0
+plt.legend()
+
+plt.tight_layout()
+plt.show()
+
+##From the plots, we can observe:
+##
+##Tanh function's output range is (-1, 1). This is a key advantage over Sigmoid, as its output is zero-centered, which can sometimes lead to faster convergence during training.
+##
+##Saturation Regions:
+##When x is a very large positive number (e.g., x3), e^−x  becomes very small, and ex dominates. So, frac (e^x − e^−x) / (e^x + e^−x) approaches
+##frac e^x / e^x=1. The function output saturates at 1.
+##
+##When x is a very large negative number (e.g., $x \< -3$), e^x becomes very small, and e^−x dominates. So, frac (e^x − e^−x) / (e^x + e^−x) approaches
+##frac (−e^−x) / (e^−x) =−1. The function output saturates at -1.
+##
+##In these saturated regions (where the curve becomes flat), the output changes very little even with significant changes in input.
+##
+##Derivative Characteristics:
+##The derivative f′(x)=1−tanh^2(x) has a maximum value of 1, which occurs at x=0 (since tanh(0)=0).
+##
+##As x moves away from 0 (either positively or negatively), the value of
+##tanh(x) approaches 1 or -1. Consequently, tanh^2(x) approaches 1, and thus f′(x) (which is 1−tanh^2 (x)) approaches 1−1=0.
+##
+##Why Tanh Suffers from Vanishing Gradients
+##The mechanism for vanishing gradients with Tanh is fundamentally the same as with Sigmoid:
+##
+##Small Derivatives in Saturated Regions: If the pre-activation value (z=
+##sumw_ix_i+b) for a neuron falls into the saturated regions of the Tanh function (i.e., z is a large positive or large negative number), the derivative of the Tanh function f′(z) will be very close to zero.
+##
+##Multiplication of Small Gradients in Backpropagation: In a deep neural network, when backpropagating the error, the gradient for weights in earlier layers is computed by multiplying the gradients of all subsequent layers' activation functions.
+##
+##For example, consider the gradient flow through multiple layers:
+##fracpartialLpartialW_1
+##propto
+##fracpartialLpartialtextoutput
+##timesf
+##′
+## (z_textLayer_N)
+##timesf
+##′
+## (z_textLayer_N−1)
+##times
+##dots
+##timesf
+##′
+## (z_textLayer_1).
+##
+##Even though Tanh's maximum derivative is 1 (compared to Sigmoid's 0.25), if inputs to a few consecutive layers fall into the saturated regions, their corresponding derivatives will be very small (e.g., 0.05, 0.01, etc.).
+##
+##Multiplying these small numbers across many layers leads to an exponentially decreasing product. For instance, if you have 10 layers, and each contributes a derivative of, say, 0.1 (due to saturation), the overall multiplier for the first layer's gradient would be (0.1)^10 =0.0000000001.
+##
+##Near-Zero Weight Updates: When the gradients become extremely small, the updates to the weights and biases in the earlier layers of the network become negligible.
+##
+##W_textnew=W_textold−
+##textlearning_rate
+##times
+##textgradient
+##
+##If gradient is close to zero, W_textnew will be almost identical to W_textold.
+##
+##Stalled Learning: This means that the early layers of the deep network, which are responsible for learning fundamental, low-level features from the input data, effectively stop learning. The network cannot properly extract useful representations from the raw input, and the overall training process stalls or becomes extremely slow, leading to poor model performance.
+##
+##Tanh vs. Sigmoid: A Small Advantage, But Still Prone to Vanishing Gradients
+##While Tanh is generally preferred over Sigmoid for hidden layers because its zero-centered output can help with faster convergence (by avoiding a "zig-zagging" effect in gradient descent when all gradients are positive), it does not fundamentally solve the vanishing gradient problem. Both functions squash their inputs into a bounded range, and in those saturation regions, their derivatives become negligible.
+##
+##This limitation is precisely why Rectified Linear Units (ReLUs) and their variants (Leaky ReLU, ELU, GELU) became so popular in deep learning. ReLUs have a constant derivative (1) for positive inputs, which largely mitigates the vanishing gradient problem in that range.
+
+#-------------------------------------------------------
+# Generate some input values
+x = torch.linspace(-5, 5, 100)
+
 # Create a ReLU activation function
 relu_activation = nn.ReLU()
 
@@ -227,12 +341,20 @@ plt.grid(True)
 plt.legend()
 plt.show()
 
+
+
 # Example with a tensor
 input_tensor = torch.tensor([-3.0, 0.0, 3.0])
 output_tensor = relu_activation(input_tensor)
 print(f"ReLU input: {input_tensor}")
 print(f"ReLU output: {output_tensor}\n")
+#-------------------------------------------------------
 
+
+
+#-------------------------------------------------------
+# Generate some input values
+x = torch.linspace(-5, 5, 100)
 
 # Create a Leaky ReLU activation function
 leaky_relu_activation = nn.LeakyReLU(negative_slope=0.01) # alpha = 0.01
@@ -256,6 +378,14 @@ output_tensor = leaky_relu_activation(input_tensor)
 print(f"Leaky ReLU input: {input_tensor}")
 print(f"Leaky ReLU output: {output_tensor}\n")
 
+#-------------------------------------------------------
+
+
+
+
+#-------------------------------------------------------
+# Generate some input values
+x = torch.linspace(-5, 5, 100)
 
 # Create an ELU activation function
 elu_activation = nn.ELU(alpha=1.0) # alpha = 1.0 is default
@@ -279,6 +409,13 @@ output_tensor = elu_activation(input_tensor)
 print(f"ELU input: {input_tensor}")
 print(f"ELU output: {output_tensor}\n")
 
+#-------------------------------------------------------
+
+
+
+#-------------------------------------------------------
+# Generate some input values
+x = torch.linspace(-5, 5, 100)
 
 # Create a GELU activation function
 gelu_activation = nn.GELU()
@@ -302,6 +439,12 @@ output_tensor = gelu_activation(input_tensor)
 print(f"GELU input: {input_tensor}")
 print(f"GELU output: {output_tensor}\n")
 
+#-------------------------------------------------------
+
+
+#-------------------------------------------------------
+# Generate some input values
+x = torch.linspace(-5, 5, 100)
 
 # Create a Softmax activation function
 softmax_activation = nn.Softmax(dim=0) # dim=0 means apply Softmax across the first dimension (features/classes)
