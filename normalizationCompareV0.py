@@ -541,10 +541,10 @@ print(f"L2 norm of first embedding: {torch.norm(output[0, 0], p=2)}")
 #------------------------------------------------------------------------------
 # differences among layer norm, weighted norm, L2 norm
 #------------------------------------------------------------------------------
-##Feature	            |    Layer Normalization (LayerNorm)             |   	Weight Normalization (WeightNorm)                   |   	L2 Normalization
-##What it acts on	    |   Activations of a layer	                     |       Weights of a layer	                                |       Any vector (e.g., embeddings, features)
-##Primary Goal  	    |   Stabilize training dynamics of activations	 |       Improve optimization of weights	                |       Ensure unit length for a vector
-##Scope of Stats        |	Per sample, across features/channels	     |       Per weight vector (no batch stats)	                |        Per individual vector
-##Parameters            |	Learnable gamma (scale) and beta (shift)     |    	Learnable g (magnitude) and mathbfv (direction)     |	    No learnable parameters (just a mathematical operation)
-##Batch Dependence      |	Independent of batch size	                 |      Independent of batch size	                        |       Independent of batch size (per vector)
-##Typical Use           |	RNNs, Transformers, small batches	         |       GANs, specific layers where BatchNorm is not ideal	|       Embeddings, similarity measures, regularization
+##Feature                |    Layer Normalization (LayerNorm)               |       Weight Normalization (WeightNorm)                     |       L2 Normalization
+##What it acts on        |   Activations of a layer                         |       Weights of a layer                                    |       Any vector (e.g., embeddings, features)
+##Primary Goal           |   Stabilize training dynamics of activations     |       Improve optimization of weights                       |       Ensure unit length for a vector
+##Scope of Stats         |    Per sample, across features/channels          |       Per weight vector (no batch stats)                    |       Per individual vector
+##Parameters             |    Learnable gamma (scale) and beta (shift)      |        Learnable g (magnitude) and mathbfv (direction)      |       No learnable parameters (just a mathematical operation)
+##Batch Dependence       |    Independent of batch size                     |      Independent of batch size                              |       Independent of batch size (per vector)
+##Typical Use            |    RNNs, Transformers, small batches             |       GANs, specific layers where BatchNorm is not ideal    |       Embeddings, similarity measures, regularization
