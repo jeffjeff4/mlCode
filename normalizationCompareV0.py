@@ -1,3 +1,5 @@
+import numpy as np
+
 #-----------------------------------------------------------
 #1. Batch Normalization (BatchNorm)
 #-----------------------------------------------------------
@@ -57,9 +59,23 @@ class ConvNetWithBN(nn.Module):
         x = self.fc(x)
         return x
 
-# model = ConvNetWithBN()
-# print(model)
+model = ConvNetWithBN()
 
+batch_size = 32
+n_channels = 3
+height = 64
+width = 16
+
+#input_ids = np.random.randn(batch_size, n_channels, height, width)
+input_ids = torch.randn(batch_size, n_channels, height, width)
+input_ids = input_ids.float()
+input_ids = torch.tensor(input_ids)
+output = model(input_ids)
+
+print("bn:")
+print(model)
+print("bn output[0, :] = ", output[0, :])
+print("-----------------------------------------------------------\n")
 
 
 #-----------------------------------------------------------
@@ -113,8 +129,23 @@ class TransformerBlock(nn.Module):
         x = self.norm2(x + ffn_output) # Add & Norm (residual connection)
         return x
 
-# transformer_block = TransformerBlock(d_model=512)
-# print(transformer_block)
+batch_size = 32
+seq_len = 10
+dimension_size = 512
+
+transformer_block = TransformerBlock(d_model=dimension_size)
+
+#input_ids = np.random.randn(batch_size, n_channels, height, width)
+input_ids = torch.randn(batch_size, seq_len, dimension_size)
+input_ids = input_ids.float()
+input_ids = torch.tensor(input_ids)
+output = transformer_block(input_ids)
+
+print("layer norm:")
+print(transformer_block)
+print("layer norm output[0, :] = ", output[0, :])
+print("-----------------------------------------------------------\n")
+
 
 
 #-----------------------------------------------------------
@@ -154,8 +185,25 @@ class StyleTransferNet(nn.Module):
         x = self.relu(self.in1(self.conv1(x)))
         return x
 
-# style_net = StyleTransferNet()
-# print(style_net)
+
+style_net = StyleTransferNet()
+print(style_net)
+
+batch_size = 32
+n_channels = 3
+height = 64
+width = 16
+
+#input_ids = np.random.randn(batch_size, n_channels, height, width)
+input_ids = torch.randn(batch_size, n_channels, height, width)
+input_ids = input_ids.float()
+input_ids = torch.tensor(input_ids)
+output = style_net(input_ids)
+
+print("Instance Normalization:")
+print(style_net)
+print("Instance Normalization output[0, :] = ", output[0, :])
+print("-----------------------------------------------------------\n")
 
 
 
@@ -203,8 +251,23 @@ class ConvNetWithGN(nn.Module):
         x = self.pool(self.relu(self.gn1(self.conv1(x))))
         return x
 
-# model = ConvNetWithGN()
-# print(model)
+model = ConvNetWithGN()
+
+batch_size = 32
+n_channels = 3
+height = 64
+width = 16
+
+#input_ids = np.random.randn(batch_size, n_channels, height, width)
+input_ids = torch.randn(batch_size, n_channels, height, width)
+input_ids = input_ids.float()
+input_ids = torch.tensor(input_ids)
+output = model(input_ids)
+
+print("group norm:")
+print(model)
+print("group norm output[0, :] = ", output[0, :])
+print("-----------------------------------------------------------\n")
 
 #---------------------------
 #part 2
@@ -321,7 +384,7 @@ print(f"WeightNormedLayer output shape: {output.shape}")
 class SimpleNetWithWN(nn.Module):
     def __init__(self):
         super().__init__()
-        self.fc1 = utils.weight_norm(nn.Linear(784, 256), name='weight', dim=0)
+        self.fc1 = utils.weight_norm(nn.Linear(768, 256), name='weight', dim=0)
         self.relu = nn.ReLU()
         self.fc2 = nn.Linear(256, 10)
 
@@ -331,8 +394,23 @@ class SimpleNetWithWN(nn.Module):
         x = self.fc2(x)
         return x
 
-# model = SimpleNetWithWN()
-# print(model)
+model = SimpleNetWithWN()
+
+batch_size = 32
+n_channels = 3
+height = 16
+width = 16
+
+#input_ids = np.random.randn(batch_size, n_channels, height, width)
+input_ids = torch.randn(batch_size, n_channels, height, width)
+input_ids = input_ids.float()
+input_ids = torch.tensor(input_ids)
+output = model(input_ids)
+
+print("weight norm:")
+print(model)
+print("weight norm output[0, :] = ", output[0, :])
+print("-----------------------------------------------------------\n")
 
 
 #-----------------------------------
@@ -431,11 +509,11 @@ class EmbeddingModel(nn.Module):
         normalized_embeddings = F.normalize(embeddings, p=2, dim=-1) # Normalize last dimension
         return normalized_embeddings
 
-# model = EmbeddingModel(vocab_size=10000, embedding_dim=256)
-# input_ids = torch.randint(0, 10000, (32, 5)) # Batch of 32 sequences, length 5
-# output = model(input_ids)
-# print(f"\nEmbedding model output shape: {output.shape}")
-# print(f"L2 norm of first embedding: {torch.norm(output[0, 0], p=2)}")
+model = EmbeddingModel(vocab_size=10000, embedding_dim=256)
+input_ids = torch.randint(0, 10000, (32, 5)) # Batch of 32 sequences, length 5
+output = model(input_ids)
+print(f"\nEmbedding model output shape: {output.shape}")
+print(f"L2 norm of first embedding: {torch.norm(output[0, 0], p=2)}")
 
 
 #-----------------------------------------------------------
@@ -458,3 +536,15 @@ class EmbeddingModel(nn.Module):
 ##    6. L2 Normalization: Useful for processing feature vectors or embeddings where their direction, rather than their raw magnitude, is most important for downstream tasks.
 ##
 ##Understanding these differences helps you make informed decisions to build more stable and powerful deep learning models!
+
+
+#------------------------------------------------------------------------------
+# differences among layer norm, weighted norm, L2 norm
+#------------------------------------------------------------------------------
+##Feature	            |    Layer Normalization (LayerNorm)             |   	Weight Normalization (WeightNorm)                   |   	L2 Normalization
+##What it acts on	    |   Activations of a layer	                     |       Weights of a layer	                                |       Any vector (e.g., embeddings, features)
+##Primary Goal  	    |   Stabilize training dynamics of activations	 |       Improve optimization of weights	                |       Ensure unit length for a vector
+##Scope of Stats        |	Per sample, across features/channels	     |       Per weight vector (no batch stats)	                |        Per individual vector
+##Parameters            |	Learnable gamma (scale) and beta (shift)     |    	Learnable g (magnitude) and mathbfv (direction)     |	    No learnable parameters (just a mathematical operation)
+##Batch Dependence      |	Independent of batch size	                 |      Independent of batch size	                        |       Independent of batch size (per vector)
+##Typical Use           |	RNNs, Transformers, small batches	         |       GANs, specific layers where BatchNorm is not ideal	|       Embeddings, similarity measures, regularization
