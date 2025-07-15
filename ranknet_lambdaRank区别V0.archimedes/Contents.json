@@ -1,0 +1,20 @@
+{
+  "sections" : [
+    {
+      "type" : "plain",
+      "contents" : "ranknet与lambdarank的区别是啥？\n\nRankNet和LambdaRank是两种用于信息检索（Information Retrieval, IR）任务（如搜索排序）的机器学习算法，主要用于学习排序（Learning to Rank, LTR）。它们都基于神经网络并使用成对（pairwise）方法来优化排序，但设计理念、优化目标和实现方式有所不同。以下是它们的区别，结合例子进行说明：\n1. 基本概念\n\nRankNet（2005年提出，Burges et al.）：\n\nRankNet是一种基于成对比较的排序算法，通过神经网络学习文档对的相对顺序。\n核心思想：对于每一对文档（$ d_i, d_j $），模型预测$ d_i $是否应该排在$ d_j $之前，并通过概率建模优化排序。\n损失函数基于交叉熵，衡量预测的相对顺序与真实顺序之间的差异。\n\n\nLambdaRank（2006年提出，Burges et al.）：\n\nLambdaRank是RankNet的改进版本，优化了RankNet的损失函数，使其直接针对信息检索的评价指标（如NDCG, Normalized Discounted Cumulative Gain）进行优化。\n核心思想：在RankNet的基础上，引入“lambda”梯度，调整梯度以直接优化排序指标，而不仅仅是成对的相对顺序。\n\n\n\n2. 主要区别\n(1) 优化目标\n\nRankNet：\n\n优化目标是使模型正确预测文档对的相对顺序。\n损失函数基于成对的概率差异，假设模型输出分数$ s_i $和$ s_j $（对应文档$ d_i $和$ d_j $）。RankNet使用sigmoid函数建模相对顺序的概率：\n$$P_{ij} = \\frac{1}{1 + e^{-(s_i - s_j)}}$$\n其中，$ P_{ij} $表示$ d_i $排在$ d_j $前的概率。损失函数为交叉熵：\n$$L = - \\bar{P}_{ij} \\log P_{ij} - (1 - \\bar{P}_{ij}) \\log (1 - P_{ij})$$\n其中，$ \\bar{P}_{ij} $是真实的相对顺序（例如，1表示$ d_i $应排在$ d_j $前，0表示相反）。\n局限性：RankNet的损失函数只关注成对的正确排序，不直接优化IR的评价指标（如NDCG或MAP）。这可能导致模型在实际排序指标上的表现不佳。\n\n\nLambdaRank：\n\n优化目标是直接优化IR的评价指标（如NDCG），而不是仅关注成对的相对顺序。\nLambdaRank引入了“lambda”梯度，调整RankNet的梯度，使其与排序指标（如NDCG）的变化量成比例。具体来说，lambda梯度表示如果交换两个文档的排序位置，会对NDCG产生多大的影响：\n$$\\lambda_{ij} = \\Delta \\text{NDCG} \\cdot \\frac{\\partial L}{\\partial (s_i - s_j)}$$\n其中，$ \\Delta \\text{NDCG} $是交换$ d_i $和$ d_j $后NDCG的变化量。\n优势：通过直接优化NDCG等指标，LambdaRank在实际排序任务中通常表现更好，尤其是在搜索场景中，NDCG更能反映用户体验（例如，前几位的文档更重要）。\n\n\n\n(2) 梯度计算\n\nRankNet：\n\n梯度基于交叉熵损失，计算公式较为简单：\n$$\\frac{\\partial L}{\\partial s_i} = \\sum_{j: i \\succ j} \\left( P_{ij} - \\bar{P}_{ij} \\right)$$\n其中，$ i \\succ j $表示$ d_i $应排在$ d_j $前。梯度只考虑成对的相对顺序是否正确。\n梯度大小与排序指标无关，可能导致对高排位文档的优化不足。\n\n\nLambdaRank：\n\nLambdaRank的梯度（称为“lambda”）不仅考虑成对的相对顺序，还根据交换文档对后对NDCG的影响加权：\n$$\\lambda_{ij} = |\\Delta \\text{NDCG}| \\cdot (P_{ij} - \\bar{P}_{ij})$$\n这使得梯度更关注对NDCG贡献大的文档对（例如，排在前面的文档）。\n举例：假设一个搜索查询有三个文档$ d_1, d_2, d_3 $，真实相关性标签为$ (3, 2, 1) $。在RankNet中，梯度只关心是否正确预测$ d_1 > d_2 $、$ d_2 > d_3 $、$ d_1 > d_3 $。在LambdaRank中，如果交换$ d_1 $和$ d_2 $导致NDCG下降更多（因为高排位更重要），则对应的lambda梯度会更大，优先优化这些对。\n\n\n\n(3) 计算效率\n\nRankNet：\n\n计算复杂度较高，因为需要为所有文档对计算损失和梯度。\n对于一个查询有$ n $个文档，需处理$ O(n^2) $个文档对，效率较低。\n\n\nLambdaRank：\n\n通过引入lambda梯度，LambdaRank在计算上与RankNet类似，但由于梯度直接与NDCG相关，收敛更快，实际训练效率更高。\nLambdaRank可以在不显著增加计算复杂度的前提下，优化更贴近实际需求的指标。\n\n\n\n(4) 适用场景\n\nRankNet：\n\n适用于需要通用排序能力的场景，模型简单，易于实现。\n更适合学术研究或不直接依赖特定IR指标的场景。\n\n\nLambdaRank：\n\n专为优化IR指标（如NDCG）设计，广泛应用于实际搜索系统（如Bing）。\n更适合注重用户体验的场景，例如网页搜索或推荐系统，其中高排位文档的正确性更重要。\n\n\n\n3. 举例说明\n场景：搜索“best sci-fi movies”\n假设一个搜索引擎需要对三个电影文档排序：$ d_1 $（《星际穿越》）、$ d_2 $（《银翼杀手》）、$ d_3 $（《疯狂的麦克斯》），真实相关性标签为$ (3, 2, 1) $，表示《星际穿越》最相关，《疯狂的麦克斯》最不相关。\n\nRankNet：\n\n模型输出分数：$ s_1 = 0.8, s_2 = 0.7, s_3 = 0.9 $，排序为$ d_3 > d_1 > d_2 $。\n损失函数计算所有文档对的相对顺序：\n\n$ d_1 > d_2 $: 正确，$ P_{12} \\approx 0.52 $，损失小。\n$ d_1 > d_3 $: 错误，$ P_{13} \\approx 0.48 $，损失较大。\n$ d_2 > d_3 $: 错误，$ P_{23} \\approx 0.46 $，损失较大。\n\n\nRankNet优化这些成对损失，但不考虑错误的排序对NDCG的影响。例如，$ d_3 $错误排在第一位对NDCG影响很大，但RankNet的梯度不区分这种重要性。\n\n\nLambdaRank：\n\n同样基于模型输出分数，但梯度加权了NDCG的变化：\n\n交换$ d_1 $和$ d_3 $会导致NDCG下降较多（因为第一位错误影响更大），因此lambda梯度$ \\lambda_{13} $较大。\n交换$ d_2 $和$ d_3 $对NDCG影响较小，$ \\lambda_{23} $较小。\n\n\nLambdaRank优先调整$ d_1 $和$ d_3 $的排序，确保高相关性文档排在前面，从而更快优化NDCG。\n\n\n\n结果对比\n\nRankNet可能需要更多迭代来纠正高排位错误，因为它平等对待所有文档对。\nLambdaRank更快收敛到高NDCG的排序，因为它优先优化对NDCG影响大的文档对。\n\n4. 总结\n\nRankNet：\n\n优化成对相对顺序，使用交叉熵损失。\n不直接针对IR指标（如NDCG），可能导致次优排序。\n计算简单，但收敛可能较慢。\n\n\nLambdaRank：\n\n在RankNet基础上，通过lambda梯度直接优化NDCG等IR指标。\n更关注高排位文档的正确性，适合实际搜索场景。\n收敛更快，效果更优。"
+    }
+  ],
+  "metadata" : {
+    "leftMargin" : 2.54,
+    "bottomMargin" : 2.54,
+    "pageSize" : 0,
+    "rightMargin" : 2.54,
+    "indentStyle" : "tabs",
+    "pageNumberingEnabled" : false,
+    "indentWidth" : 4,
+    "writingDirection" : -1,
+    "topMargin" : 2.54,
+    "previewStyle" : "preview_modern"
+  }
+}
