@@ -235,6 +235,24 @@
 ##
 ##---
 ##
+##Diagram: Adapter-Like LoRA Integration
+##Diagram 1: Transformer Layer with LoRA (Adapter-Like)
+##textCollapseWrapCopy[Input Tokens]
+##      ↓
+##[Attention: W_c_attn + (128/64)·(A·B^T, r=64)] → [Add & Norm]
+##      ↓
+##[Feed-Forward: W_c_fc + (128/64)·(A·B^T, r=64)] → [Add & Norm]
+##      ↓
+##[Output to Next Layer]
+##
+##Key: LoRA updates (blue) with r=64 mimic adapters, applied to c_attn and c_fc. Original weights (black) are frozen.
+##
+##Diagram 2: LoRA Update (Adapter-Like)
+##textCollapseWrapCopyInput x (768) → [W_c_attn (768×2304)] + [LoRA: A (768×64) · B^T (64×2304), α=128] → Output y (2304)
+##
+##Key: High rank (r=64) and scaling ($ \frac{128}{64} = 2 $) emulate adapter expressiveness.
+##
+##
 ##### Connection to Previous Discussions
 ##- **PEFT and LoRA**: This configuration aligns with our prior LoRA code, addressing errors like `AdapterConfig` (outdated) and `AdaLoraConfig` (`total_step` issue) by using `LoraConfig`. LoRA is more parameter-efficient (~0.12% parameters) than adapters (~1%).
 ##- **YouTube Recommendation System**: The parameters enable fine-tuning for recommendation descriptions, complementing XGBoost’s ranking (numerical/categorical splits, as discussed) or RAG systems for video retrieval.
@@ -270,3 +288,5 @@
 ##- **Relevance**: Enables efficient fine-tuning for YouTube recommendations, adaptable to NVIDIA’s NeMo/NIMs for enterprise AI.
 ##
 ##If you need further clarification (e.g., mathematical derivation of LoRA updates, tuning `r` or `lora_alpha`, or NeMo integration), or want to extend the code (e.g., add ROUGE metrics), let me know!
+
+

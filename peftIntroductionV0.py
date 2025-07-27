@@ -305,3 +305,4 @@
 ##- **面试准备**：熟悉 PEFT 的原理、实现（如 Hugging Face `peft` 库），并能结合 NVIDIA 平台（如 NeMo、NIMs）讨论企业级应用。
 ##
 ##如果需要更详细的代码实现（例如，QLoRA 或 Prompt Tuning）、特定方法的数学推导，或者与 NVIDIA 平台的更深入整合（如 NeMo 的分布式训练），请告诉我！
+
