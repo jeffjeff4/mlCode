@@ -104,3 +104,28 @@
 ##阶段  	        softmax(logits / T)	        是否乘以 T²	               用途
 ##训练（蒸馏）  	    ✅（T > 1）	            ✅（为了梯度正确）	        获取 soft target + 平滑训练
 ##推理	                ❌（直接用 logits）   	❌	                    输出预测类别
+
+##--------------------------------------------------------------------
+https://zhuanlan.zhihu.com/p/102038521
+4.2. 温度代表了什么，如何选取合适的温度？
+温度的高低改变的是Net-S训练过程中对负标签的关注程度: 温度较低时，对负标签的关注，尤其是那些显著低于平均值的负标签的关注较少；而温度较高时，负标签相关的值会相对增大，Net-S会相对多地关注到负标签。
+
+实际上，负标签中包含一定的信息，尤其是那些值显著高于平均值的负标签。但由于Net-T的训练过程决定了负标签部分比较noisy，并且负标签的值越低，其信息就越不可靠。因此温度的选取比较empirical，本质上就是在下面两件事之中取舍:
+
+从有部分信息量的负标签中学习 --> 温度要高一些
+防止受负标签中噪声的影响 -->温度要低一些
+总的来说，T的选择和Net-S的大小有关，Net-S参数量比较小的时候，相对比较低的温度就可以了（因为参数量小的模型不能capture all knowledge，所以可以适当忽略掉一些负标签的信息）
+
+##--------------------------------------------------------------------
+https://zhuanlan.zhihu.com/p/71986772
+
+1.2 蒸馏时的softmax
+
+比之前的softmax多了一个参数T（temperature），T越大产生的概率分布越平滑。
+
+有两种蒸馏的目标函数：
+1. 只使用soft targets：在蒸馏时teacher使用新的softmax产生soft targets；student使用新的softmax在transfer set上学习，和teacher使用相同的T。
+2. 同时使用sotf和hard targets：student的目标函数是hard target和soft target目标函数的加权平均，使用hard target时T=1，soft target时T和teacher的一样。Hinton的经验是给hard target的权重小一点。另外要注意的是，因为在求梯度（导数）时新的目标函数会导致梯度是以前的
+1/T^2 ，所以要再乘上 T^2 ，不然T变了的话hard target不减小（T=1），但soft target会变。
+3. 直接用logits的MSE（是1的special case）
+
