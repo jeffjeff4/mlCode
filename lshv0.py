@@ -15,24 +15,36 @@ def shingle(text: str, k: int):
 a = shingle(a, k)
 b = shingle(b, k)
 c = shingle(c, k)
+print()
+print("a after shigle:")
 print(a)
 
 vocab = list(a.union(b).union(c))
+print()
+print("vocab:")
 print(vocab)
 
 a_1hot = [1 if x in a else 0 for x in vocab]
 b_1hot = [1 if x in b else 0 for x in vocab]
 c_1hot = [1 if x in c else 0 for x in vocab]
+print()
+print("a_1hot:")
 print(a_1hot)
 
 hash_ex = list(range(1, len(vocab)+1))
+print()
+print("before shuffle, hash_ex:")
 print(hash_ex)  # we haven't shuffled yet
 
 from random import shuffle
 
 shuffle(hash_ex)
+print()
+print("after shuffle, hash_ex:")
 print(hash_ex)
 
+print()
+print("samples of hash_ex:")
 for i in range(1, 5):
     print(f"{i} -> {hash_ex.index(i)}")
 
@@ -51,6 +63,7 @@ for _ in range(20):
     shuffle(hash_ex)
     hash_funcs.append(hash_ex)
 
+print()
 for i in range(3):
     print(f"hash function {i+1}:")
     print(hash_funcs[i])
@@ -65,6 +78,8 @@ for func in hash_funcs:
             signature.append(idx)
             break
 
+print()
+print("signature:")
 print(signature)
 
 def create_hash_func(size: int):
@@ -100,7 +115,10 @@ a_sig = create_hash(a_1hot)
 b_sig = create_hash(b_1hot)
 c_sig = create_hash(c_1hot)
 
+print()
+print("a_sig:")
 print(a_sig)
+print("b_sig:")
 print(b_sig)
 
 def jaccard(a: set, b: set):
@@ -122,11 +140,14 @@ def split_vector(signature, b):
     return subvecs
 
 band_b = split_vector(b_sig, 10)
-band_b
+print()
+print("band_b:")
+print(band_b)
 
 
 band_c = split_vector(c_sig, 10)
-band_c
+print("band_c:")
+print(band_c)
 
 for b_rows, c_rows in zip(band_b, band_c):
     if b_rows == c_rows:
