@@ -8,15 +8,19 @@ import os
 def setup(rank, world_size):
     os.environ["MASTER_ADDR"] = "localhost"
     os.environ["MASTER_PORT"] = "12356"
-    dist.init_process_group("nccl", rank=rank, world_size=world_size)
-    torch.cuda.set_device(rank)
+    #mac does not have nccl, using gloo
+    #dist.init_process_group("nccl", rank=rank, world_size=world_size)
+    dist.init_process_group("gloo", rank=rank, world_size=world_size)
+    #torch.cuda.set_device(rank)
+    device = torch.device("cpu")
 
 def cleanup():
     dist.destroy_process_group()
 
 def run_tp_attention_with_backward(rank, world_size):
     setup(rank, world_size)
-    device = torch.device(f"cuda:{rank}")
+    #device = torch.device(f"cuda:{rank}")
+    device = torch.device(f"cpu:{rank}")
 
     # === Input ===
     batch, seq_len, hidden_size = 1, 1, 8
@@ -62,11 +66,14 @@ def run_tp_attention_with_backward(rank, world_size):
 
     # === Fake Loss (L2 norm) ===
     loss = (full_output ** 2).mean()
+    print(loss.requires_grad, loss.grad_fn)
     loss.backward()
 
     # === Gradient from full_output: Reduce-Scatter into each output column ===
-    full_output_grad = full_output.grad if full_output.requires_grad else full_output.clone().detach()
-    full_output_grad = torch.ones_like(full_output)  # simulate dL/dOut
+    #full_output_grad = full_output.grad if full_output.requires_grad else full_output.clone().detach()
+    #full_output_grad = full_output.grad if full_output.requires_grad else full_output.clone().detach().requires_grad_(True)
+    full_output_grad = full_output.grad if full_output.requires_grad else full_output.clone().requires_grad_(True)
+    #full_output_grad = torch.ones_like(full_output)  # simulate dL/dOut
 
     grad_chunks = list(torch.chunk(full_output_grad, world_size, dim=-1))
     local_grad = torch.empty_like(grad_chunks[0])
