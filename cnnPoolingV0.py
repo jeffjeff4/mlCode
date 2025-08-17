@@ -41,6 +41,8 @@ def avg_pool2d(X, pool_size=2, stride=2):
     if X.ndim == 2:
         X = X[np.newaxis, ...]
 
+    #H_out = floor[(H_in + 2⋅P_H - K_H) / s_h] + 1
+    #𝑊_𝑜𝑢𝑡 = floor[(𝑊_𝑖𝑛 + 2⋅𝑃_𝑊 − 𝐾_𝑊) / 𝑆_𝑊] + 1
     C, H, W = X.shape
     out_h = (H - pool_size) // stride + 1
     out_w = (W - pool_size) // stride + 1
