@@ -104,7 +104,9 @@ class MyBatchNorm(nn.Module):
     ####        return x_hat
 
 
-bn = MyBatchNorm(num_features=64)
+#bn = MyBatchNorm(num_features=64)
+bn = MyBatchNorm(num_features=64, affine = False, track_running_stats = True)
+
 x = torch.randn(16, 64, 32, 32)
 out = bn(x)
 #print("out = ", out)
