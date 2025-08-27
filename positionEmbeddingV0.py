@@ -35,14 +35,6 @@ print(pe(x).shape)  # [2, 5, 16]
 #    𝑃𝐸(𝑝𝑜𝑠, 2𝑖+1) = cos(𝑝𝑜𝑠 / pow(10000, 2𝑖/𝑑)
 
 
-#2. Relative Position Embeddings
-#Instead of absolute positions, encode the relative distance between tokens.
-#Used in Transformer-XL, T5, DeBERTa.
-#Better for generalizing to longer sequences.
-#Example: relative attention bias (T5 style)
-#    Attention(𝑄, 𝐾) = 𝑄 𝐾^⊤ / sqrt(𝑑_k) + 𝑏_rel(𝑖 − 𝑗)
-#where 𝑏_𝑟𝑒𝑙 depends on the distance between positions 𝑖 and 𝑗.
-
 
 import math
 
@@ -59,6 +51,14 @@ def sinusoidal_position_encoding(seq_len, d_model):
 
 pe = sinusoidal_position_encoding(seq_len=10, d_model=16)
 print(pe.shape)  # [10, 16]
+
+#2. Relative Position Embeddings
+#Instead of absolute positions, encode the relative distance between tokens.
+#Used in Transformer-XL, T5, DeBERTa.
+#Better for generalizing to longer sequences.
+#Example: relative attention bias (T5 style)
+#    Attention(𝑄, 𝐾) = 𝑄 𝐾^⊤ / sqrt(𝑑_k) + 𝑏_rel(𝑖 − 𝑗)
+#where 𝑏_𝑟𝑒𝑙 depends on the distance between positions 𝑖 and 𝑗.
 
 
 class RelativePositionalBias(nn.Module):
