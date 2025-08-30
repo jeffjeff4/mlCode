@@ -122,7 +122,10 @@ def run_gpipe_process(rank, world_size, device_type, model_config):
             # print(f"Rank {rank}: 生成微批次 {i} 输入")
         else:
             # 其他进程接收上一个进程的输出作为输入
-            micro_batch_input = torch.empty(MICRO_BATCH_SIZE, in_dim if rank == 1 else hidden_dim,
+            # wrong???
+            #micro_batch_input = torch.empty(MICRO_BATCH_SIZE, in_dim if rank == 1 else hidden_dim,
+            #                                requires_grad=True).to(current_device)
+            micro_batch_input = torch.empty(MICRO_BATCH_SIZE, hidden_dim,
                                             requires_grad=True).to(current_device)
             dist.recv(tensor=micro_batch_input, src=rank - 1)
             # print(f"Rank {rank}: 接收微批次 {i} 输入")
