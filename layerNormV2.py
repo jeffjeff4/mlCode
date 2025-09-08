@@ -1,138 +1,127 @@
+# https://zhuanlan.zhihu.com/p/642043155
+import numpy as np
 import torch
-import torch.nn as nn
+from torch import nn
 
-class MyLayerNormFunction(torch.autograd.Function):
-    @staticmethod
-    def forward(ctx, x, weight, bias, normalized_shape, eps):
-        # Compute dimensions for normalization (last len(normalized_shape) dimensions)
-        dim = tuple(range(-len(normalized_shape), 0))
-        mean = x.mean(dim=dim, keepdim=True)
-        var = x.var(dim=dim, unbiased=False, keepdim=True)
 
-        # Normalize
-        x_hat = (x - mean) / torch.sqrt(var + eps)
-
-        # Affine transformation
-        if weight is not None and bias is not None:
-            weight_view = weight.view(*([1] * (x.dim() - len(normalized_shape))), *normalized_shape)
-            bias_view = bias.view(*([1] * (x.dim() - len(normalized_shape))), *normalized_shape)
-            output = x_hat * weight_view + bias_view
+def torch_compare_fc(infeature, outfeature, bias, inputs, params, bias_params):
+    network = nn.Linear(infeature, outfeature, bias).requires_grad_(True)
+    cnt = 0
+    for i in network.parameters():
+        if cnt == 0:
+            i.data = torch.from_numpy(params.T)
+            i.retain_grad = True
         else:
-            output = x_hat
+            i.data = torch.from_numpy(bias_params)
+            i.retain_grad = True
+        cnt += 1
 
-        # Save for backward
-        ctx.save_for_backward(x, weight, bias, mean, var, x_hat)
-        ctx.eps = eps
-        ctx.dim = dim
-        ctx.normalized_shape = normalized_shape
+    inputs = torch.tensor(inputs, requires_grad=True)
+    output = network(inputs)
+    sum = torch.sum(output)  # make sure the gradient is 1
+    kk = sum.backward()
+    grad_params = 0
+    grad_bias = 0
+    cnt = 0
+    for i in network.parameters():
+        if cnt == 0:
+            grad_params = i.grad
+        else:
+            grad_bias = i.grad
+        cnt += 1
+    inputs.retain_grad()
+    k = inputs.grad
+    return output, k, grad_params, grad_bias
+
+
+class fclayer(object):
+    def __init__(self, infeature, outfeature, bias=False, params=[], bias_params=[], name='', init=''):
+        self.infeature = infeature
+        self.outfeature = outfeature
+        self.bias = bias
+        if list(params) != []:
+            self.params = params
+        else:
+            ranges = np.sqrt(6 / (infeature + outfeature))
+            self.params = np.random.uniform(-ranges, ranges, (infeature, outfeature))
+        if bias and list(bias_params) != []:
+            self.bias_params = bias_params
+        else:
+            ranges = np.sqrt(6 / (infeature + outfeature))
+            self.bias_params = np.random.uniform(-ranges, ranges, (outfeature))
+        self.params_delta = np.zeros((infeature, outfeature))
+        self.bias_delta = np.zeros(outfeature)
+
+    def forward(self, inputs):
+        self.inputs = inputs
+        output = np.matmul(inputs, self.params)
+        if self.bias:
+            output = output + self.bias_params[np.newaxis, :]
         return output
 
-    @staticmethod
-    def backward(ctx, grad_output):
-        x, weight, bias, mean, var, x_hat = ctx.saved_tensors
-        eps = ctx.eps
-        dim = ctx.dim
-        normalized_shape = ctx.normalized_shape
+    def backward(self, delta, lr=1e-10):
+        # previous layer delta
+        input_delta = np.matmul(delta, self.params.T)
 
-        # Initialize gradients
-        grad_x = None
-        grad_weight = None
-        grad_bias = None
+        # params bias delta
+        self.params_delta = np.matmul(delta.T, self.inputs).T
+        self.bias_delta = np.sum(delta, axis=0)
 
-        # Number of elements in normalized dimensions
-        m = torch.prod(torch.tensor(normalized_shape)).item()
+        self.params -= self.params_delta * lr
+        if self.bias:
+            self.bias_params -= self.bias_delta * lr
+        return input_delta
 
-        # Compute gradient w.r.t. x_hat
-        if weight is not None:
-            weight_view = weight.view(*([1] * (x.dim() - len(normalized_shape))), *normalized_shape)
-            grad_x_hat = grad_output * weight_view
-        else:
-            grad_x_hat = grad_output
+    def save_model(self):
+        return [self.params, self.bias_params]
 
-        # Compute gradient w.r.t. x
-        inv_std = 1.0 / torch.sqrt(var + eps)
-        x_minus_mean = x - mean
-        grad_x = inv_std * (
-            grad_x_hat
-            - grad_x_hat.mean(dim=dim, keepdim=True)
-            - x_minus_mean * (grad_x_hat * x_minus_mean).mean(dim=dim, keepdim=True) / var
-        )
+    def restore_model(self, models):
+        self.params = models[0]
+        self.bias_params = models[1]
 
-        # Compute gradients for weight and bias
-        if weight is not None and bias is not None:
-            # Sum over batch dimension only
-            batch_dim = tuple(range(0, x.dim() - len(normalized_shape)))
-            grad_weight = (grad_output * x_hat).sum(dim=batch_dim).view(normalized_shape)
-            grad_bias = grad_output.sum(dim=batch_dim).view(normalized_shape)
 
-        return grad_x, grad_weight, grad_bias, None, None
+def train_single():
+    inputs = np.random.rand(3, 1000)
+    outputs = np.random.rand(3, 900)
+    infeature = inputs.shape[-1]
+    outfeature = 900
+    bias = True
+    delta = np.ones((inputs.shape[0], outfeature), dtype=np.float64)
+    params = np.random.standard_normal((infeature, outfeature)) / np.sqrt(infeature / 2)
+    if bias:
+        bias_params = np.random.standard_normal(outfeature) / np.sqrt(infeature / 2)
 
-class MyLayerNorm(nn.Module):
-    def __init__(self, normalized_shape, eps=1e-5, affine=True):
-        super().__init__()
-        if isinstance(normalized_shape, int):
-            normalized_shape = (normalized_shape,)
-        self.normalized_shape = tuple(normalized_shape)
-        self.eps = eps
-        self.affine = affine
+    fc = fclayer(infeature, outfeature, bias, params, bias_params)
+    for i in range(1000):
+        out = fc.forward(inputs)
+        sum = np.sum((outputs - out) * (outputs - out))
+        delta = 2 * (out - outputs)
+        partial = fc.backward(delta, 0.0001)
+        print(sum)
 
-        if self.affine:
-            self.weight = nn.Parameter(torch.ones(self.normalized_shape))
-            self.bias = nn.Parameter(torch.zeros(self.normalized_shape))
-        else:
-            self.register_parameter('weight', None)
-            self.register_parameter('bias', None)
-
-    def forward(self, x):
-        return MyLayerNormFunction.apply(
-            x, self.weight, self.bias, self.normalized_shape, self.eps
-        )
 
 if __name__ == "__main__":
-    # Test with 2D normalized shape
-    ln = MyLayerNorm(normalized_shape=[10, 128])
-    x = torch.randn(32, 10, 128, requires_grad=True)
-    y = ln(x)
-    print("Output shape:", y.shape)
+    train_single()
 
-    # Test backpropagation
-    y.mean().backward()
-    print("Input gradient:", x.grad is not None)
-    print("Weight gradient:", ln.weight.grad is not None if ln.affine else "No affine")
-    print("Bias gradient:", ln.bias.grad is not None if ln.affine else "No affine")
+    inputs = np.random.rand(3, 1000)
+    infeature = inputs.shape[-1]
+    outfeature = 900
+    bias = True
+    delta = np.ones((inputs.shape[0], outfeature), dtype=np.float64)
+    params = np.random.standard_normal((infeature, outfeature)) / np.sqrt(infeature / 2)
+    if bias:
+        bias_params = np.random.standard_normal(outfeature) / np.sqrt(infeature / 2)
 
-    # Test in eval mode
-    ln.eval()
-    x = torch.randn(32, 10, 128, requires_grad=True)
-    y = ln(x)
-    y.mean().backward()
-    print("\nIn eval mode:")
-    print("Output shape:", y.shape)
-    print("Input gradient:", x.grad is not None)
-    print("Weight gradient:", ln.weight.grad is not None if ln.affine else "No affine")
-    print("Bias gradient:", ln.bias.grad is not None if ln.affine else "No affine")
-
-    # Compare with PyTorch's LayerNorm
-    ref = nn.LayerNorm(normalized_shape=[10, 128])
-    custom = MyLayerNorm(normalized_shape=[10, 128])
-    custom.load_state_dict(ref.state_dict(), strict=False)
-
-    x = torch.randn(32, 10, 128, requires_grad=True)
-    x_ref = x.clone().detach().requires_grad_(True)
-
-    out_custom = custom(x)
-    out_ref = ref(x_ref)
-
-    loss_custom = out_custom.mean()
-    loss_ref = out_ref.mean()
-
-    loss_custom.backward()
-    loss_ref.backward()
-
-    print("\nComparison with nn.LayerNorm:")
-    print("Output close:", torch.allclose(out_custom, out_ref, atol=1e-5))
-    print("Input grad close:", torch.allclose(x.grad, x_ref.grad, atol=1e-5))
-    if custom.affine:
-        print("Weight grad close:", torch.allclose(custom.weight.grad, ref.weight.grad, atol=1e-5))
-        print("Bias grad close:", torch.allclose(custom.bias.grad, ref.bias.grad, atol=1e-5))
-
+    fc = fclayer(infeature, outfeature, bias, params, bias_params)
+    output = fc.forward(inputs)
+    partial = fc.backward(delta)
+    output_torch, partial_torch, grad_params_torch, grad_bias_torch = torch_compare_fc(infeature, outfeature, bias,
+                                                                                       inputs, params, bias_params)
+    assert np.mean(np.abs(output - output_torch.cpu().detach().numpy())) < 1e-6, np.mean(
+        np.abs(output - output_torch.cpu().detach().numpy()))
+    assert np.mean(np.abs(partial - partial_torch.cpu().detach().numpy())) < 1e-6, np.mean(
+        np.abs(partial - partial_torch.cpu().detach().numpy()))
+    assert np.mean(np.abs(fc.params_delta.T - grad_params_torch.cpu().detach().numpy())) < 1e-6, np.mean(
+        np.abs(fc.params_delta.T - grad_params_torch.cpu().detach().numpy()))
+    assert np.mean(np.abs(fc.bias_delta - grad_bias_torch.cpu().detach().numpy())) < 1e-6, np.mean(
+        np.abs(fc.bias_delta - grad_bias_torch.cpu().detach().numpy()))
