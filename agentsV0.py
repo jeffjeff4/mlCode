@@ -7,6 +7,7 @@
 ####Stores the conversation history, showing which agent responded to which message.
 ####Supports a method to retrieve the full conversation transcript, with turns attributed to agents.
 import string
+import re
 
 def remove_punctuation_and_split(text: str) -> list[str]:
     """
@@ -73,7 +74,8 @@ class Agents:
         self.agents[agent_name] = {'name': agent_name, 'func': func, 'keywords': list0}
 
     def checkWord(self, msg, agent_desc):
-        list0 = remove_punctuation_and_split(msg)
+        #list0 = remove_punctuation_and_split(msg)
+        list0 = msg.split(" ")
         #list0 = msg.split(' ')
         for word in list0:
             if word in agent_desc:
@@ -82,16 +84,20 @@ class Agents:
 
     def route(self, msg):
         msg_low = msg.lower()
+        cleaned = re.sub(r"[^\w\s]", "", msg_low)
+        print("    cleaned = ", cleaned)
+
         for name, val in self.agents.items():
             # if any(word in msg_low for word in val['keywords']):
             # print('msg = ', msg)
             # print('val[\'keywords\'] = ', val['keywords'])
-            if self.checkWord(msg, val['keywords']) == True:
-                print("00000")
+
+            if self.checkWord(cleaned, val['keywords']) == True:
+                #print("00000")
                 print("self.agents[name] = ", self.agents[name])
                 return self.agents[name]
 
-        print("111111")
+        #print("111111")
         return self.agents['general']
         # handle if can not one specific agent, ???
 
@@ -124,10 +130,20 @@ msg = 'general'
 rst = agents.processMsg(msg)
 print("rst = ", rst)
 
+rst = agents.getLog()
+print("rst = ", rst)
+
+
 msg = 'work'
 rst = agents.processMsg(msg)
 print("rst = ", rst)
 
+rst = agents.getLog()
+print("rst = ", rst)
+
 msg = 'could you help me to work?'
 rst = agents.processMsg(msg)
+print("rst = ", rst)
+
+rst = agents.getLog()
 print("rst = ", rst)
