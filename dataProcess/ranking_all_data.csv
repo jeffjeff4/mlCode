@@ -1,0 +1,397 @@
+product_title,product_id,user_id,price,ranking_score,clicked,added_to_cart,purchased,comment,timestamp,ranking_position,label,unix_time,dayofweek
+Product 81 - Premium Watch,p_081,u_001,18.79,3,1,0,0,Might come back to this later,2025-05-30 05:55:08.113676,34,1,1748584508,4
+Product 90 - Organic Watch,p_090,u_001,167.27,2,0,0,0,,2025-06-01 23:47:08.113676,19,0,1748821628,6
+Product 81 - Premium Watch,p_081,u_001,18.79,3,1,0,0,Might come back to this later,2025-05-30 05:55:08.113676,34,1,1748584508,4
+Product 72 - Luxury Headphones,p_072,u_001,50.95,1,0,0,0,,2025-06-02 02:42:08.113676,34,0,1748832128,0
+Product 85 - Wireless Backpack,p_085,u_001,174.53,4,1,1,0,Added to cart for later,2025-05-31 05:24:08.113676,27,1,1748669048,5
+Product 23 - Organic Backpack,p_023,u_001,128.37,3,0,0,0,,2025-06-02 04:28:08.113676,53,0,1748838488,0
+Product 85 - Wireless Backpack,p_085,u_001,174.53,4,1,1,0,Added to cart for later,2025-05-31 05:24:08.113676,27,1,1748669048,5
+Product 43 - Smart Headphones,p_043,u_001,95.93,2,0,0,0,,2025-06-04 18:05:08.113676,3,0,1749060308,2
+Product 47 - Premium Watch,p_047,u_002,65.23,2,1,0,0,Interesting product,2025-06-19 21:20:08.113676,22,1,1750368008,3
+Product 1 - Wireless Headphones,p_001,u_002,108.78,4,0,0,0,,2025-05-29 12:28:08.113676,1,0,1748521688,3
+Product 47 - Premium Watch,p_047,u_002,65.23,2,1,0,0,Interesting product,2025-06-19 21:20:08.113676,22,1,1750368008,3
+Product 24 - Wireless Water Bottle,p_024,u_002,194.6,3,0,0,0,,2025-06-03 10:46:08.113676,18,0,1748947568,1
+Product 52 - Luxury T-Shirt,p_052,u_002,171.65,5,1,1,0,Considering buying this,2025-06-22 19:04:08.113676,48,1,1750619048,6
+Product 91 - Luxury Watch,p_091,u_002,141.61,5,0,0,0,,2025-06-04 05:24:08.113676,37,0,1749014648,2
+Product 52 - Luxury T-Shirt,p_052,u_002,171.65,5,1,1,0,Considering buying this,2025-06-22 19:04:08.113676,48,1,1750619048,6
+Product 54 - Luxury Water Bottle,p_054,u_002,15.39,5,0,0,0,,2025-06-08 11:43:08.113676,24,0,1749382988,6
+Product 85 - Wireless Backpack,p_085,u_003,86.75,1,1,0,0,Not sure about this one,2025-06-07 03:17:08.113676,16,1,1749266228,5
+Product 46 - Smart Backpack,p_046,u_003,45.96,2,0,0,0,,2025-06-02 10:28:08.113676,43,0,1748860088,0
+Product 85 - Wireless Backpack,p_085,u_003,86.75,1,1,0,0,Not sure about this one,2025-06-07 03:17:08.113676,16,1,1749266228,5
+Product 17 - Smart Watch,p_017,u_003,39.83,1,0,0,0,,2025-06-02 15:07:08.113676,13,0,1748876828,0
+Product 30 - Premium Headphones,p_030,u_003,61.18,3,1,1,1,"Perfect fit, very satisfied",2025-06-18 10:07:08.113676,45,1,1750241228,2
+Product 89 - Luxury Backpack,p_089,u_003,115.89,3,0,0,0,,2025-06-02 19:33:08.113676,9,0,1748892788,0
+Product 30 - Premium Headphones,p_030,u_003,61.18,3,1,1,1,"Perfect fit, very satisfied",2025-06-18 10:07:08.113676,45,1,1750241228,2
+Product 14 - Premium Headphones,p_014,u_003,149.38,5,0,0,0,,2025-06-04 22:49:08.113676,12,0,1749077348,2
+Product 61 - Wireless Water Bottle,p_061,u_004,108.24,5,1,0,0,Not sure about this one,2025-06-05 00:33:08.113676,15,1,1749083588,3
+Product 40 - Organic T-Shirt,p_040,u_004,134.89,2,0,0,0,,2025-05-29 08:02:08.113676,8,0,1748505728,3
+Product 61 - Wireless Water Bottle,p_061,u_004,108.24,5,1,0,0,Not sure about this one,2025-06-05 00:33:08.113676,15,1,1749083588,3
+Product 46 - Smart Backpack,p_046,u_004,190.61,4,0,0,0,,2025-06-06 15:19:08.113676,9,0,1749223148,4
+Product 96 - Smart Headphones,p_096,u_004,97.67,3,1,0,0,Not sure about this one,2025-06-14 17:00:08.113676,58,1,1749920408,5
+Product 14 - Premium Headphones,p_014,u_004,86.31,2,0,0,0,,2025-06-10 16:49:08.113676,11,0,1749574148,1
+Product 96 - Smart Headphones,p_096,u_004,97.67,3,1,0,0,Not sure about this one,2025-06-14 17:00:08.113676,58,1,1749920408,5
+Product 34 - Smart T-Shirt,p_034,u_004,78.93,2,0,0,0,,2025-06-12 15:12:08.113676,30,0,1749741128,3
+Product 26 - Premium Backpack,p_026,u_005,180.99,4,1,0,0,Not sure about this one,2025-06-03 14:52:08.113676,52,1,1748962328,1
+Product 91 - Luxury Watch,p_091,u_005,128.07,2,0,0,0,,2025-05-30 04:30:08.113676,5,0,1748579408,4
+Product 26 - Premium Backpack,p_026,u_005,180.99,4,1,0,0,Not sure about this one,2025-06-03 14:52:08.113676,52,1,1748962328,1
+Product 34 - Smart T-Shirt,p_034,u_005,48.25,1,0,0,0,,2025-05-30 11:26:08.113676,39,0,1748604368,4
+Product 40 - Organic T-Shirt,p_040,u_005,141.24,2,1,1,1,"Perfect fit, very satisfied",2025-06-08 21:14:08.113676,4,1,1749417248,6
+Product 86 - Smart Watch,p_086,u_005,14.46,1,0,0,0,,2025-06-04 00:22:08.113676,27,0,1748996528,2
+Product 40 - Organic T-Shirt,p_040,u_005,141.24,2,1,1,1,"Perfect fit, very satisfied",2025-06-08 21:14:08.113676,4,1,1749417248,6
+Product 43 - Smart Headphones,p_043,u_005,23.43,4,0,0,0,,2025-06-09 05:26:08.113676,19,0,1749446768,0
+Product 91 - Luxury Watch,p_091,u_006,23.56,2,1,1,1,Great product! Will buy again,2025-06-01 07:19:08.113676,31,1,1748762348,6
+Product 82 - Wireless Watch,p_082,u_006,87.6,3,0,0,0,,2025-05-28 22:04:08.113676,3,0,1748469848,2
+Product 91 - Luxury Watch,p_091,u_006,23.56,2,1,1,1,Great product! Will buy again,2025-06-01 07:19:08.113676,31,1,1748762348,6
+Product 48 - Organic Water Bottle,p_048,u_006,48.79,3,0,0,0,,2025-06-02 06:25:08.113676,60,0,1748845508,0
+Product 51 - Smart Backpack,p_051,u_006,180.1,3,1,1,1,Great product! Will buy again,2025-06-02 17:39:08.113676,5,1,1748885948,0
+Product 40 - Organic T-Shirt,p_040,u_006,113.99,3,0,0,0,,2025-06-03 13:47:08.113676,53,0,1748958428,1
+Product 51 - Smart Backpack,p_051,u_006,180.1,3,1,1,1,Great product! Will buy again,2025-06-02 17:39:08.113676,5,1,1748885948,0
+Product 62 - Organic Backpack,p_062,u_006,146.19,5,0,0,0,,2025-06-10 19:53:08.113676,60,0,1749585188,1
+Product 57 - Organic Headphones,p_057,u_007,37.44,3,1,0,0,Not sure about this one,2025-05-30 01:49:08.113676,58,1,1748569748,4
+Product 95 - Wireless Watch,p_095,u_007,166.86,2,0,0,0,,2025-05-30 05:24:08.113676,20,0,1748582648,4
+Product 57 - Organic Headphones,p_057,u_007,37.44,3,1,0,0,Not sure about this one,2025-05-30 01:49:08.113676,58,1,1748569748,4
+Product 63 - Organic Backpack,p_063,u_007,143.92,4,0,0,0,,2025-06-01 10:26:08.113676,5,0,1748773568,6
+Product 9 - Luxury Backpack,p_009,u_007,187.67,4,1,1,0,Considering buying this,2025-05-31 04:59:08.113676,36,1,1748667548,5
+Product 57 - Organic Headphones,p_057,u_007,24.44,4,0,0,0,,2025-06-04 07:39:08.113676,1,0,1749022748,2
+Product 9 - Luxury Backpack,p_009,u_007,187.67,4,1,1,0,Considering buying this,2025-05-31 04:59:08.113676,36,1,1748667548,5
+Product 24 - Wireless Water Bottle,p_024,u_007,167.77,4,0,0,0,,2025-06-07 12:14:08.113676,28,0,1749298448,5
+Product 90 - Organic Watch,p_090,u_008,106.05,3,1,1,1,"Excellent quality, highly recommend",2025-05-29 03:23:08.113676,45,1,1748488988,3
+Product 76 - Smart Backpack,p_076,u_008,121.23,3,0,0,0,,2025-06-02 04:51:08.113676,36,0,1748839868,0
+Product 90 - Organic Watch,p_090,u_008,106.05,3,1,1,1,"Excellent quality, highly recommend",2025-05-29 03:23:08.113676,45,1,1748488988,3
+Product 23 - Organic Backpack,p_023,u_008,198.61,4,0,0,0,,2025-06-03 13:17:08.113676,34,0,1748956628,1
+Product 99 - Smart Backpack,p_099,u_008,180.48,3,1,1,0,Added to cart for later,2025-06-17 07:08:08.113676,52,1,1750144088,1
+Product 95 - Wireless Watch,p_095,u_008,15.63,5,0,0,0,,2025-06-04 11:30:08.113676,60,0,1749036608,2
+Product 99 - Smart Backpack,p_099,u_008,180.48,3,1,1,0,Added to cart for later,2025-06-17 07:08:08.113676,52,1,1750144088,1
+Product 25 - Wireless Backpack,p_025,u_008,8.69,3,0,0,0,,2025-06-04 15:36:08.113676,27,0,1749051368,2
+Product 81 - Premium Watch,p_081,u_009,104.97,5,1,0,0,Might come back to this later,2025-05-31 07:16:08.113676,10,1,1748675768,5
+Product 82 - Wireless Watch,p_082,u_009,174.35,4,0,0,0,,2025-05-29 07:35:08.113676,7,0,1748504108,3
+Product 81 - Premium Watch,p_081,u_009,104.97,5,1,0,0,Might come back to this later,2025-05-31 07:16:08.113676,10,1,1748675768,5
+Product 65 - Wireless Headphones,p_065,u_009,96.26,2,0,0,0,,2025-06-02 21:14:08.113676,52,0,1748898848,0
+Product 14 - Premium Headphones,p_014,u_009,125.06,5,1,0,0,Interesting product,2025-06-08 19:01:08.113676,16,1,1749409268,6
+Product 40 - Organic T-Shirt,p_040,u_009,139.26,5,0,0,0,,2025-06-03 21:55:08.113676,59,0,1748987708,1
+Product 14 - Premium Headphones,p_014,u_009,125.06,5,1,0,0,Interesting product,2025-06-08 19:01:08.113676,16,1,1749409268,6
+Product 82 - Wireless Watch,p_082,u_009,64.05,3,0,0,0,,2025-06-04 18:33:08.113676,43,0,1749061988,2
+Product 21 - Premium Backpack,p_021,u_010,152.11,1,1,0,0,Not sure about this one,2025-06-01 11:18:08.113676,44,1,1748776688,6
+Product 27 - Premium Backpack,p_027,u_010,64.13,5,0,0,0,,2025-05-31 18:24:08.113676,22,0,1748715848,5
+Product 21 - Premium Backpack,p_021,u_010,152.11,1,1,0,0,Not sure about this one,2025-06-01 11:18:08.113676,44,1,1748776688,6
+Product 24 - Wireless Water Bottle,p_024,u_010,35.68,5,0,0,0,,2025-06-03 03:26:08.113676,46,0,1748921168,1
+Product 4 - Wireless Backpack,p_004,u_010,94.55,3,1,1,1,Great product! Will buy again,2025-06-01 17:47:08.113676,3,1,1748800028,6
+Product 46 - Smart Backpack,p_046,u_010,60.45,2,0,0,0,,2025-06-05 01:49:08.113676,40,0,1749088148,3
+Product 4 - Wireless Backpack,p_004,u_010,94.55,3,1,1,1,Great product! Will buy again,2025-06-01 17:47:08.113676,3,1,1748800028,6
+Product 5 - Wireless Backpack,p_005,u_010,135.06,5,0,0,0,,2025-06-12 19:51:08.113676,20,0,1749757868,3
+Product 86 - Smart Watch,p_086,u_011,184.92,1,1,1,1,"Excellent quality, highly recommend",2025-06-14 07:59:08.113676,42,1,1749887948,5
+Product 34 - Smart T-Shirt,p_034,u_011,151.05,1,0,0,0,,2025-05-30 00:10:08.113676,19,0,1748563808,4
+Product 86 - Smart Watch,p_086,u_011,184.92,1,1,1,1,"Excellent quality, highly recommend",2025-06-14 07:59:08.113676,42,1,1749887948,5
+Product 9 - Luxury Backpack,p_009,u_011,65.67,5,0,0,0,,2025-06-03 22:21:08.113676,26,0,1748989268,1
+Product 74 - Luxury Watch,p_074,u_011,15.07,3,1,1,1,Great product! Will buy again,2025-06-26 04:07:08.113676,52,1,1750910828,3
+Product 42 - Premium Headphones,p_042,u_011,187.08,3,0,0,0,,2025-06-05 00:14:08.113676,13,0,1749082448,3
+Product 74 - Luxury Watch,p_074,u_011,15.07,3,1,1,1,Great product! Will buy again,2025-06-26 04:07:08.113676,52,1,1750910828,3
+Product 24 - Wireless Water Bottle,p_024,u_011,167.11,5,0,0,0,,2025-06-05 07:00:08.113676,52,0,1749106808,3
+Product 14 - Premium Headphones,p_014,u_012,184.02,5,1,0,0,Not sure about this one,2025-06-08 17:24:08.113676,10,1,1749403448,6
+Product 79 - Organic Headphones,p_079,u_012,79.05,3,0,0,0,,2025-05-30 01:40:08.113676,40,0,1748569208,4
+Product 14 - Premium Headphones,p_014,u_012,184.02,5,1,0,0,Not sure about this one,2025-06-08 17:24:08.113676,10,1,1749403448,6
+Product 70 - Wireless T-Shirt,p_070,u_012,198.11,1,0,0,0,,2025-05-30 07:08:08.113676,34,0,1748588888,4
+Product 61 - Wireless Water Bottle,p_061,u_012,106.2,4,1,0,0,Might come back to this later,2025-06-10 10:01:08.113676,59,1,1749549668,1
+Product 54 - Luxury Water Bottle,p_054,u_012,177.04,2,0,0,0,,2025-05-30 09:53:08.113676,60,0,1748598788,4
+Product 61 - Wireless Water Bottle,p_061,u_012,106.2,4,1,0,0,Might come back to this later,2025-06-10 10:01:08.113676,59,1,1749549668,1
+Product 40 - Organic T-Shirt,p_040,u_012,191.4,1,0,0,0,,2025-06-02 16:58:08.113676,39,0,1748883488,0
+Product 19 - Wireless Water Bottle,p_019,u_013,161.01,2,1,1,0,Added to cart for later,2025-05-29 04:50:08.113676,31,1,1748494208,3
+Product 38 - Luxury Watch,p_038,u_013,49.36,2,0,0,0,,2025-05-29 09:39:08.113676,20,0,1748511548,3
+Product 19 - Wireless Water Bottle,p_019,u_013,161.01,2,1,1,0,Added to cart for later,2025-05-29 04:50:08.113676,31,1,1748494208,3
+Product 33 - Organic T-Shirt,p_033,u_013,164.36,1,0,0,0,,2025-06-09 02:07:08.113676,8,0,1749434828,0
+Product 64 - Premium Backpack,p_064,u_013,110.71,2,1,1,1,"Perfect fit, very satisfied",2025-05-30 11:39:08.113676,32,1,1748605148,4
+Product 38 - Luxury Watch,p_038,u_013,90.71,3,0,0,0,,2025-06-10 18:29:08.113676,50,0,1749580148,1
+Product 64 - Premium Backpack,p_064,u_013,110.71,2,1,1,1,"Perfect fit, very satisfied",2025-05-30 11:39:08.113676,32,1,1748605148,4
+Product 37 - Luxury Watch,p_037,u_013,58.95,3,0,0,0,,2025-06-17 20:00:08.113676,50,0,1750190408,1
+Product 15 - Smart Water Bottle,p_015,u_014,51.01,4,1,1,1,Great product! Will buy again,2025-05-29 10:39:08.113676,21,1,1748515148,3
+Product 52 - Luxury T-Shirt,p_052,u_014,180.98,2,0,0,0,,2025-05-28 20:33:08.113676,25,0,1748464388,2
+Product 15 - Smart Water Bottle,p_015,u_014,51.01,4,1,1,1,Great product! Will buy again,2025-05-29 10:39:08.113676,21,1,1748515148,3
+Product 76 - Smart Backpack,p_076,u_014,97.33,4,0,0,0,,2025-05-29 10:02:08.113676,18,0,1748512928,3
+Product 79 - Organic Headphones,p_079,u_014,130.45,4,1,1,1,"Excellent quality, highly recommend",2025-06-09 13:05:08.113676,46,1,1749474308,0
+Product 69 - Smart Water Bottle,p_069,u_014,166.61,4,0,0,0,,2025-06-01 00:58:08.113676,42,0,1748739488,6
+Product 79 - Organic Headphones,p_079,u_014,130.45,4,1,1,1,"Excellent quality, highly recommend",2025-06-09 13:05:08.113676,46,1,1749474308,0
+Product 76 - Smart Backpack,p_076,u_014,47.11,2,0,0,0,,2025-06-04 11:22:08.113676,22,0,1749036128,2
+Product 91 - Luxury Watch,p_091,u_015,61.65,2,1,0,0,Interesting product,2025-06-03 03:18:08.113676,1,1,1748920688,1
+Product 70 - Wireless T-Shirt,p_070,u_015,72.55,1,0,0,0,,2025-05-28 19:47:08.113676,22,0,1748461628,2
+Product 91 - Luxury Watch,p_091,u_015,61.65,2,1,0,0,Interesting product,2025-06-03 03:18:08.113676,1,1,1748920688,1
+Product 23 - Organic Backpack,p_023,u_015,161.8,5,0,0,0,,2025-05-31 01:03:08.113676,30,0,1748653388,5
+Product 28 - Smart Headphones,p_028,u_015,180.75,5,1,1,0,Added to cart for later,2025-06-10 02:18:08.113676,31,1,1749521888,1
+Product 46 - Smart Backpack,p_046,u_015,112.84,4,0,0,0,,2025-06-06 05:04:08.113676,28,0,1749186248,4
+Product 28 - Smart Headphones,p_028,u_015,180.75,5,1,1,0,Added to cart for later,2025-06-10 02:18:08.113676,31,1,1749521888,1
+Product 69 - Smart Water Bottle,p_069,u_015,51.64,4,0,0,0,,2025-06-06 14:07:08.113676,58,0,1749218828,4
+Product 29 - Wireless Watch,p_029,u_016,140.24,3,1,0,0,Not sure about this one,2025-06-03 15:01:08.113676,20,1,1748962868,1
+Product 81 - Premium Watch,p_081,u_016,198.85,5,0,0,0,,2025-05-29 15:31:08.113676,51,0,1748532668,3
+Product 29 - Wireless Watch,p_029,u_016,140.24,3,1,0,0,Not sure about this one,2025-06-03 15:01:08.113676,20,1,1748962868,1
+Product 11 - Smart Backpack,p_011,u_016,94.52,5,0,0,0,,2025-06-01 18:20:08.113676,29,0,1748802008,6
+Product 5 - Wireless Backpack,p_005,u_016,94.01,3,1,0,0,Might come back to this later,2025-06-06 19:40:08.113676,46,1,1749238808,4
+Product 19 - Wireless Water Bottle,p_019,u_016,132.93,1,0,0,0,,2025-06-02 14:37:08.113676,58,0,1748875028,0
+Product 5 - Wireless Backpack,p_005,u_016,94.01,3,1,0,0,Might come back to this later,2025-06-06 19:40:08.113676,46,1,1749238808,4
+Product 98 - Luxury Backpack,p_098,u_016,169.49,4,0,0,0,,2025-06-04 05:29:08.113676,32,0,1749014948,2
+Product 59 - Smart Watch,p_059,u_017,60.62,5,1,1,0,Added to cart for later,2025-06-19 21:46:08.113676,43,1,1750369568,3
+Product 71 - Luxury Watch,p_071,u_017,99.19,2,0,0,0,,2025-05-29 14:17:08.113676,45,0,1748528228,3
+Product 59 - Smart Watch,p_059,u_017,60.62,5,1,1,0,Added to cart for later,2025-06-19 21:46:08.113676,43,1,1750369568,3
+Product 94 - Luxury Water Bottle,p_094,u_017,76.33,4,0,0,0,,2025-05-30 19:37:08.113676,24,0,1748633828,4
+Product 10 - Wireless Backpack,p_010,u_018,116.45,1,1,0,0,Interesting product,2025-05-31 03:43:08.113676,33,1,1748662988,5
+Product 77 - Luxury Headphones,p_077,u_018,141.73,3,0,0,0,,2025-05-29 05:17:08.113676,36,0,1748495828,3
+Product 10 - Wireless Backpack,p_010,u_018,116.45,1,1,0,0,Interesting product,2025-05-31 03:43:08.113676,33,1,1748662988,5
+Product 17 - Smart Watch,p_017,u_018,126.88,5,0,0,0,,2025-06-02 00:14:08.113676,35,0,1748823248,0
+Product 100 - Smart Headphones,p_100,u_018,17.17,4,1,0,0,Interesting product,2025-05-31 11:48:08.113676,22,1,1748692088,5
+Product 99 - Smart Backpack,p_099,u_018,88.26,3,0,0,0,,2025-06-05 03:06:08.113676,17,0,1749092768,3
+Product 100 - Smart Headphones,p_100,u_018,17.17,4,1,0,0,Interesting product,2025-05-31 11:48:08.113676,22,1,1748692088,5
+Product 95 - Wireless Watch,p_095,u_018,56.35,5,0,0,0,,2025-06-05 16:05:08.113676,37,0,1749139508,3
+Product 58 - Wireless Headphones,p_058,u_019,79.49,3,1,0,0,Not sure about this one,2025-05-30 15:00:08.113676,34,1,1748617208,4
+Product 3 - Smart Watch,p_003,u_019,195.7,4,0,0,0,,2025-05-29 03:02:08.113676,18,0,1748487728,3
+Product 58 - Wireless Headphones,p_058,u_019,79.49,3,1,0,0,Not sure about this one,2025-05-30 15:00:08.113676,34,1,1748617208,4
+Product 34 - Smart T-Shirt,p_034,u_019,181.85,4,0,0,0,,2025-05-30 08:46:08.113676,25,0,1748594768,4
+Product 96 - Smart Headphones,p_096,u_019,174.73,1,1,0,0,Might come back to this later,2025-06-01 04:26:08.113676,30,1,1748751968,6
+Product 54 - Luxury Water Bottle,p_054,u_019,184.51,1,0,0,0,,2025-06-04 04:56:08.113676,8,0,1749012968,2
+Product 96 - Smart Headphones,p_096,u_019,174.73,1,1,0,0,Might come back to this later,2025-06-01 04:26:08.113676,30,1,1748751968,6
+Product 61 - Wireless Water Bottle,p_061,u_019,179.72,5,0,0,0,,2025-06-04 10:51:08.113676,43,0,1749034268,2
+Product 57 - Organic Headphones,p_057,u_020,150.39,3,1,1,0,Added to cart for later,2025-06-06 07:28:08.113676,10,1,1749194888,4
+Product 31 - Smart Headphones,p_031,u_020,199.22,5,0,0,0,,2025-05-31 13:55:08.113676,18,0,1748699708,5
+Product 57 - Organic Headphones,p_057,u_020,150.39,3,1,1,0,Added to cart for later,2025-06-06 07:28:08.113676,10,1,1749194888,4
+Product 36 - Premium Headphones,p_036,u_020,120.33,3,0,0,0,,2025-06-01 03:14:08.113676,33,0,1748747648,6
+Product 36 - Premium Headphones,p_036,u_020,169.36,1,1,0,0,Not sure about this one,2025-06-08 03:11:08.113676,56,1,1749352268,6
+Product 93 - Premium Water Bottle,p_093,u_020,68.25,5,0,0,0,,2025-06-01 14:59:08.113676,39,0,1748789948,6
+Product 36 - Premium Headphones,p_036,u_020,169.36,1,1,0,0,Not sure about this one,2025-06-08 03:11:08.113676,56,1,1749352268,6
+Product 45 - Premium Headphones,p_045,u_020,98.92,2,0,0,0,,2025-06-01 20:01:08.113676,52,0,1748808068,6
+Product 70 - Wireless T-Shirt,p_070,u_021,115.16,3,1,0,0,Not sure about this one,2025-06-07 19:22:08.113676,33,1,1749324128,5
+Product 97 - Premium Headphones,p_097,u_021,167.48,2,0,0,0,,2025-05-28 22:42:08.113676,2,0,1748472128,2
+Product 70 - Wireless T-Shirt,p_070,u_021,115.16,3,1,0,0,Not sure about this one,2025-06-07 19:22:08.113676,33,1,1749324128,5
+Product 50 - Premium Watch,p_050,u_021,7.41,4,0,0,0,,2025-06-01 14:42:08.113676,25,0,1748788928,6
+Product 65 - Wireless Headphones,p_065,u_021,176.87,4,1,0,0,Not sure about this one,2025-06-09 01:20:08.113676,39,1,1749432008,0
+Product 54 - Luxury Water Bottle,p_054,u_021,43.76,3,0,0,0,,2025-06-02 18:29:08.113676,15,0,1748888948,0
+Product 65 - Wireless Headphones,p_065,u_021,176.87,4,1,0,0,Not sure about this one,2025-06-09 01:20:08.113676,39,1,1749432008,0
+Product 34 - Smart T-Shirt,p_034,u_021,107.45,5,0,0,0,,2025-06-03 15:52:08.113676,23,0,1748965928,1
+Product 54 - Luxury Water Bottle,p_054,u_022,128.1,5,1,1,1,"Perfect fit, very satisfied",2025-06-01 00:07:08.113676,26,1,1748736428,6
+Product 22 - Premium Headphones,p_022,u_022,178.15,2,0,0,0,,2025-06-01 04:07:08.113676,47,0,1748750828,6
+Product 54 - Luxury Water Bottle,p_054,u_022,128.1,5,1,1,1,"Perfect fit, very satisfied",2025-06-01 00:07:08.113676,26,1,1748736428,6
+Product 48 - Organic Water Bottle,p_048,u_022,55.81,3,0,0,0,,2025-06-03 02:50:08.113676,30,0,1748919008,1
+Product 23 - Organic Backpack,p_023,u_022,143.43,1,1,0,0,Interesting product,2025-06-03 03:44:08.113676,48,1,1748922248,1
+Product 26 - Premium Backpack,p_026,u_022,121.02,4,0,0,0,,2025-06-08 08:33:08.113676,8,0,1749371588,6
+Product 23 - Organic Backpack,p_023,u_022,143.43,1,1,0,0,Interesting product,2025-06-03 03:44:08.113676,48,1,1748922248,1
+Product 83 - Luxury Headphones,p_083,u_022,26.33,2,0,0,0,,2025-06-08 20:37:08.113676,60,0,1749415028,6
+Product 63 - Organic Backpack,p_063,u_023,21.55,4,1,1,0,Added to cart for later,2025-06-06 09:08:08.113676,48,1,1749200888,4
+Product 9 - Luxury Backpack,p_009,u_023,194.07,3,0,0,0,,2025-05-30 04:14:08.113676,54,0,1748578448,4
+Product 63 - Organic Backpack,p_063,u_023,21.55,4,1,1,0,Added to cart for later,2025-06-06 09:08:08.113676,48,1,1749200888,4
+Product 7 - Wireless Headphones,p_007,u_023,61.52,5,0,0,0,,2025-06-01 06:06:08.113676,41,0,1748757968,6
+Product 12 - Organic Watch,p_012,u_023,90.62,1,1,0,0,Might come back to this later,2025-06-08 13:00:08.113676,50,1,1749387608,6
+Product 72 - Luxury Headphones,p_072,u_023,187.07,3,0,0,0,,2025-06-03 07:19:08.113676,19,0,1748935148,1
+Product 12 - Organic Watch,p_012,u_023,90.62,1,1,0,0,Might come back to this later,2025-06-08 13:00:08.113676,50,1,1749387608,6
+Product 100 - Smart Headphones,p_100,u_023,14.32,3,0,0,0,,2025-06-03 10:09:08.113676,18,0,1748945348,1
+Product 54 - Luxury Water Bottle,p_054,u_024,35.08,2,1,1,0,Looks good but still comparing,2025-05-29 06:52:08.113676,9,1,1748501528,3
+Product 53 - Luxury Water Bottle,p_053,u_024,55.66,3,0,0,0,,2025-05-28 18:18:08.113676,1,0,1748456288,2
+Product 54 - Luxury Water Bottle,p_054,u_024,35.08,2,1,1,0,Looks good but still comparing,2025-05-29 06:52:08.113676,9,1,1748501528,3
+Product 75 - Smart T-Shirt,p_075,u_024,112.74,4,0,0,0,,2025-05-30 15:53:08.113676,9,0,1748620388,4
+Product 66 - Luxury T-Shirt,p_066,u_024,161.55,4,1,0,0,Not sure about this one,2025-05-30 18:05:08.113676,32,1,1748628308,4
+Product 33 - Organic T-Shirt,p_033,u_024,150.73,3,0,0,0,,2025-05-31 19:59:08.113676,51,0,1748721548,5
+Product 66 - Luxury T-Shirt,p_066,u_024,161.55,4,1,0,0,Not sure about this one,2025-05-30 18:05:08.113676,32,1,1748628308,4
+Product 60 - Organic Backpack,p_060,u_024,140.9,1,0,0,0,,2025-06-01 09:49:08.113676,22,0,1748771348,6
+Product 100 - Smart Headphones,p_100,u_025,35.76,4,1,0,0,Might come back to this later,2025-05-29 01:08:08.113676,6,1,1748480888,3
+Product 36 - Premium Headphones,p_036,u_025,151.64,4,0,0,0,,2025-06-01 11:39:08.113676,17,0,1748777948,6
+Product 100 - Smart Headphones,p_100,u_025,35.76,4,1,0,0,Might come back to this later,2025-05-29 01:08:08.113676,6,1,1748480888,3
+Product 25 - Wireless Backpack,p_025,u_025,184.76,5,0,0,0,,2025-06-03 23:18:08.113676,48,0,1748992688,1
+Product 50 - Premium Watch,p_050,u_025,197.74,2,1,0,0,Not sure about this one,2025-05-30 10:38:08.113676,32,1,1748601488,4
+Product 4 - Wireless Backpack,p_004,u_025,189.11,3,0,0,0,,2025-06-04 15:54:08.113676,15,0,1749052448,2
+Product 50 - Premium Watch,p_050,u_025,197.74,2,1,0,0,Not sure about this one,2025-05-30 10:38:08.113676,32,1,1748601488,4
+Product 29 - Wireless Watch,p_029,u_025,56.28,4,0,0,0,,2025-06-08 15:51:08.113676,41,0,1749397868,6
+Product 97 - Premium Headphones,p_097,u_026,69.66,4,1,1,0,Added to cart for later,2025-05-29 05:43:08.113676,7,1,1748497388,3
+Product 77 - Luxury Headphones,p_077,u_026,194.0,1,0,0,0,,2025-06-10 15:48:08.113676,57,0,1749570488,1
+Product 97 - Premium Headphones,p_097,u_026,69.66,4,1,1,0,Added to cart for later,2025-05-29 05:43:08.113676,7,1,1748497388,3
+Product 9 - Luxury Backpack,p_009,u_026,176.01,3,0,0,0,,2025-06-11 21:33:08.113676,50,0,1749677588,2
+Product 64 - Premium Backpack,p_064,u_026,41.33,3,1,0,0,Interesting product,2025-05-30 11:07:08.113676,57,1,1748603228,4
+Product 79 - Organic Headphones,p_079,u_026,149.17,3,0,0,0,,2025-06-13 01:36:08.113676,38,0,1749778568,4
+Product 64 - Premium Backpack,p_064,u_026,41.33,3,1,0,0,Interesting product,2025-05-30 11:07:08.113676,57,1,1748603228,4
+Product 82 - Wireless Watch,p_082,u_026,185.0,1,0,0,0,,2025-06-14 17:01:08.113676,16,0,1749920468,5
+Product 23 - Organic Backpack,p_023,u_027,113.38,5,1,0,0,Not sure about this one,2025-06-03 23:45:08.113676,49,1,1748994308,1
+Product 90 - Organic Watch,p_090,u_027,179.64,4,0,0,0,,2025-06-01 14:56:08.113676,48,0,1748789768,6
+Product 23 - Organic Backpack,p_023,u_027,113.38,5,1,0,0,Not sure about this one,2025-06-03 23:45:08.113676,49,1,1748994308,1
+Product 14 - Premium Headphones,p_014,u_027,10.12,3,0,0,0,,2025-06-01 23:51:08.113676,36,0,1748821868,6
+Product 21 - Premium Backpack,p_021,u_027,164.29,5,1,1,1,Great product! Will buy again,2025-06-09 03:16:08.113676,9,1,1749438968,0
+Product 44 - Premium Water Bottle,p_044,u_027,166.35,4,0,0,0,,2025-06-02 02:03:08.113676,27,0,1748829788,0
+Product 21 - Premium Backpack,p_021,u_027,164.29,5,1,1,1,Great product! Will buy again,2025-06-09 03:16:08.113676,9,1,1749438968,0
+Product 69 - Smart Water Bottle,p_069,u_027,138.98,4,0,0,0,,2025-06-08 11:35:08.113676,37,0,1749382508,6
+Product 52 - Luxury T-Shirt,p_052,u_028,88.66,4,1,1,1,Great product! Will buy again,2025-05-28 23:17:08.113676,25,1,1748474228,2
+Product 41 - Luxury Watch,p_041,u_028,8.29,1,0,0,0,,2025-05-29 00:38:08.113676,35,0,1748479088,3
+Product 52 - Luxury T-Shirt,p_052,u_028,88.66,4,1,1,1,Great product! Will buy again,2025-05-28 23:17:08.113676,25,1,1748474228,2
+Product 13 - Organic Backpack,p_013,u_028,150.19,3,0,0,0,,2025-06-03 16:19:08.113676,52,0,1748967548,1
+Product 84 - Wireless Water Bottle,p_084,u_028,37.17,4,1,1,1,"Perfect fit, very satisfied",2025-05-31 04:41:08.113676,11,1,1748666468,5
+Product 72 - Luxury Headphones,p_072,u_028,6.89,1,0,0,0,,2025-06-04 13:00:08.113676,57,0,1749042008,2
+Product 84 - Wireless Water Bottle,p_084,u_028,37.17,4,1,1,1,"Perfect fit, very satisfied",2025-05-31 04:41:08.113676,11,1,1748666468,5
+Product 75 - Smart T-Shirt,p_075,u_028,99.17,5,0,0,0,,2025-06-05 19:45:08.113676,50,0,1749152708,3
+Product 94 - Luxury Water Bottle,p_094,u_029,42.63,4,1,1,0,Added to cart for later,2025-06-03 21:21:08.113676,23,1,1748985668,1
+Product 3 - Smart Watch,p_003,u_029,12.22,1,0,0,0,,2025-05-30 16:57:08.113676,22,0,1748624228,4
+Product 94 - Luxury Water Bottle,p_094,u_029,42.63,4,1,1,0,Added to cart for later,2025-06-03 21:21:08.113676,23,1,1748985668,1
+Product 15 - Smart Water Bottle,p_015,u_029,137.66,5,0,0,0,,2025-06-01 21:31:08.113676,32,0,1748813468,6
+Product 63 - Organic Backpack,p_063,u_029,37.61,5,1,1,1,Great product! Will buy again,2025-06-07 19:04:08.113676,2,1,1749323048,5
+Product 98 - Luxury Backpack,p_098,u_029,15.06,3,0,0,0,,2025-06-03 17:18:08.113676,36,0,1748971088,1
+Product 63 - Organic Backpack,p_063,u_029,37.61,5,1,1,1,Great product! Will buy again,2025-06-07 19:04:08.113676,2,1,1749323048,5
+Product 97 - Premium Headphones,p_097,u_029,121.05,5,0,0,0,,2025-06-07 20:46:08.113676,6,0,1749329168,5
+Product 12 - Organic Watch,p_012,u_030,53.77,2,1,0,0,Might come back to this later,2025-06-03 09:08:08.113676,46,1,1748941688,1
+Product 19 - Wireless Water Bottle,p_019,u_030,66.69,2,0,0,0,,2025-06-01 10:28:08.113676,50,0,1748773688,6
+Product 12 - Organic Watch,p_012,u_030,53.77,2,1,0,0,Might come back to this later,2025-06-03 09:08:08.113676,46,1,1748941688,1
+Product 83 - Luxury Headphones,p_083,u_030,93.08,5,0,0,0,,2025-06-05 22:33:08.113676,8,0,1749162788,3
+Product 90 - Organic Watch,p_090,u_030,63.93,4,1,1,0,Considering buying this,2025-06-04 02:52:08.113676,8,1,1749005528,2
+Product 33 - Organic T-Shirt,p_033,u_030,135.03,4,0,0,0,,2025-06-10 20:22:08.113676,58,0,1749586928,1
+Product 90 - Organic Watch,p_090,u_030,63.93,4,1,1,0,Considering buying this,2025-06-04 02:52:08.113676,8,1,1749005528,2
+Product 16 - Premium T-Shirt,p_016,u_030,131.3,2,0,0,0,,2025-06-11 00:59:08.113676,32,0,1749603548,2
+Product 10 - Wireless Backpack,p_010,u_031,49.64,1,1,1,1,"Excellent quality, highly recommend",2025-06-02 10:04:08.113676,47,1,1748858648,0
+Product 15 - Smart Water Bottle,p_015,u_031,165.31,4,0,0,0,,2025-06-01 03:07:08.113676,32,0,1748747228,6
+Product 10 - Wireless Backpack,p_010,u_031,49.64,1,1,1,1,"Excellent quality, highly recommend",2025-06-02 10:04:08.113676,47,1,1748858648,0
+Product 43 - Smart Headphones,p_043,u_031,50.73,1,0,0,0,,2025-06-01 19:24:08.113676,43,0,1748805848,6
+Product 74 - Luxury Watch,p_074,u_031,148.09,4,1,1,0,Added to cart for later,2025-06-11 04:00:08.113676,23,1,1749614408,2
+Product 65 - Wireless Headphones,p_065,u_031,34.42,1,0,0,0,,2025-06-02 11:15:08.113676,29,0,1748862908,0
+Product 74 - Luxury Watch,p_074,u_031,148.09,4,1,1,0,Added to cart for later,2025-06-11 04:00:08.113676,23,1,1749614408,2
+Product 1 - Wireless Headphones,p_001,u_031,69.69,5,0,0,0,,2025-06-03 16:43:08.113676,13,0,1748968988,1
+Product 20 - Wireless T-Shirt,p_020,u_032,15.63,1,1,0,0,Might come back to this later,2025-06-01 17:54:08.113676,28,1,1748800448,6
+Product 48 - Organic Water Bottle,p_048,u_032,185.24,5,0,0,0,,2025-06-01 12:26:08.113676,18,0,1748780768,6
+Product 20 - Wireless T-Shirt,p_020,u_032,15.63,1,1,0,0,Might come back to this later,2025-06-01 17:54:08.113676,28,1,1748800448,6
+Product 26 - Premium Backpack,p_026,u_032,28.91,1,0,0,0,,2025-06-05 14:47:08.113676,29,0,1749134828,3
+Product 53 - Luxury Water Bottle,p_053,u_032,177.14,4,1,1,1,"Perfect fit, very satisfied",2025-06-01 18:00:08.113676,4,1,1748800808,6
+Product 67 - Premium Headphones,p_067,u_032,147.19,4,0,0,0,,2025-06-05 22:42:08.113676,32,0,1749163328,3
+Product 53 - Luxury Water Bottle,p_053,u_032,177.14,4,1,1,1,"Perfect fit, very satisfied",2025-06-01 18:00:08.113676,4,1,1748800808,6
+Product 81 - Premium Watch,p_081,u_032,111.39,3,0,0,0,,2025-06-08 21:40:08.113676,31,0,1749418808,6
+Product 60 - Organic Backpack,p_060,u_033,102.26,3,1,1,1,Great product! Will buy again,2025-05-29 19:30:08.113676,32,1,1748547008,3
+Product 70 - Wireless T-Shirt,p_070,u_033,101.29,1,0,0,0,,2025-05-30 13:44:08.113676,39,0,1748612648,4
+Product 60 - Organic Backpack,p_060,u_033,102.26,3,1,1,1,Great product! Will buy again,2025-05-29 19:30:08.113676,32,1,1748547008,3
+Product 18 - Premium Headphones,p_018,u_033,192.95,1,0,0,0,,2025-05-30 23:15:08.113676,34,0,1748646908,4
+Product 14 - Premium Headphones,p_014,u_033,61.52,3,1,0,0,Not sure about this one,2025-06-01 16:41:08.113676,39,1,1748796068,6
+Product 91 - Luxury Watch,p_091,u_033,155.12,1,0,0,0,,2025-06-11 04:27:08.113676,41,0,1749616028,2
+Product 14 - Premium Headphones,p_014,u_033,61.52,3,1,0,0,Not sure about this one,2025-06-01 16:41:08.113676,39,1,1748796068,6
+Product 16 - Premium T-Shirt,p_016,u_033,174.16,4,0,0,0,,2025-06-11 08:05:08.113676,34,0,1749629108,2
+Product 14 - Premium Headphones,p_014,u_034,9.93,2,1,0,0,Interesting product,2025-05-31 08:01:08.113676,4,1,1748678468,5
+Product 91 - Luxury Watch,p_091,u_034,75.55,5,0,0,0,,2025-05-31 13:39:08.113676,8,0,1748698748,5
+Product 14 - Premium Headphones,p_014,u_034,9.93,2,1,0,0,Interesting product,2025-05-31 08:01:08.113676,4,1,1748678468,5
+Product 73 - Premium Backpack,p_073,u_034,10.64,2,0,0,0,,2025-06-06 21:26:08.113676,57,0,1749245168,4
+Product 41 - Luxury Watch,p_041,u_034,187.27,2,1,1,1,"Excellent quality, highly recommend",2025-06-12 01:22:08.113676,43,1,1749691328,3
+Product 69 - Smart Water Bottle,p_069,u_034,145.51,4,0,0,0,,2025-06-09 04:19:08.113676,20,0,1749442748,0
+Product 41 - Luxury Watch,p_041,u_034,187.27,2,1,1,1,"Excellent quality, highly recommend",2025-06-12 01:22:08.113676,43,1,1749691328,3
+Product 41 - Luxury Watch,p_041,u_034,140.78,4,0,0,0,,2025-06-11 09:45:08.113676,10,0,1749635108,2
+Product 4 - Wireless Backpack,p_004,u_035,181.85,5,1,1,0,Considering buying this,2025-05-29 23:48:08.113676,37,1,1748562488,3
+Product 43 - Smart Headphones,p_043,u_035,95.18,4,0,0,0,,2025-05-31 07:23:08.113676,60,0,1748676188,5
+Product 4 - Wireless Backpack,p_004,u_035,181.85,5,1,1,0,Considering buying this,2025-05-29 23:48:08.113676,37,1,1748562488,3
+Product 1 - Wireless Headphones,p_001,u_035,123.56,4,0,0,0,,2025-06-07 15:05:08.113676,16,0,1749308708,5
+Product 38 - Luxury Watch,p_038,u_035,93.14,3,1,0,0,Interesting product,2025-05-31 17:52:08.113676,52,1,1748713928,5
+Product 97 - Premium Headphones,p_097,u_035,13.11,4,0,0,0,,2025-06-07 16:54:08.113676,35,0,1749315248,5
+Product 38 - Luxury Watch,p_038,u_035,93.14,3,1,0,0,Interesting product,2025-05-31 17:52:08.113676,52,1,1748713928,5
+Product 77 - Luxury Headphones,p_077,u_035,129.45,1,0,0,0,,2025-06-09 01:20:08.113676,7,0,1749432008,0
+Product 95 - Wireless Watch,p_095,u_036,95.37,1,1,1,1,"Perfect fit, very satisfied",2025-05-28 20:52:08.113676,51,1,1748465528,2
+Product 42 - Premium Headphones,p_042,u_036,172.04,5,0,0,0,,2025-05-29 07:42:08.113676,30,0,1748504528,3
+Product 95 - Wireless Watch,p_095,u_036,95.37,1,1,1,1,"Perfect fit, very satisfied",2025-05-28 20:52:08.113676,51,1,1748465528,2
+Product 60 - Organic Backpack,p_060,u_036,136.19,3,0,0,0,,2025-05-29 17:58:08.113676,47,0,1748541488,3
+Product 98 - Luxury Backpack,p_098,u_036,182.96,3,1,1,0,Looks good but still comparing,2025-06-01 19:44:08.113676,42,1,1748807048,6
+Product 77 - Luxury Headphones,p_077,u_036,122.0,5,0,0,0,,2025-05-29 23:29:08.113676,19,0,1748561348,3
+Product 98 - Luxury Backpack,p_098,u_036,182.96,3,1,1,0,Looks good but still comparing,2025-06-01 19:44:08.113676,42,1,1748807048,6
+Product 86 - Smart Watch,p_086,u_036,162.21,1,0,0,0,,2025-05-30 16:24:08.113676,26,0,1748622248,4
+Product 85 - Wireless Backpack,p_085,u_037,173.22,2,1,0,0,Not sure about this one,2025-06-04 08:08:08.113676,56,1,1749024488,2
+Product 76 - Smart Backpack,p_076,u_037,190.4,3,0,0,0,,2025-05-30 14:08:08.113676,37,0,1748614088,4
+Product 85 - Wireless Backpack,p_085,u_037,173.22,2,1,0,0,Not sure about this one,2025-06-04 08:08:08.113676,56,1,1749024488,2
+Product 72 - Luxury Headphones,p_072,u_037,42.96,5,0,0,0,,2025-06-01 02:30:08.113676,19,0,1748745008,6
+Product 35 - Premium Watch,p_035,u_037,40.64,2,1,1,1,Great product! Will buy again,2025-06-06 20:17:08.113676,32,1,1749241028,4
+Product 10 - Wireless Backpack,p_010,u_037,29.44,3,0,0,0,,2025-06-01 03:12:08.113676,42,0,1748747528,6
+Product 35 - Premium Watch,p_035,u_037,40.64,2,1,1,1,Great product! Will buy again,2025-06-06 20:17:08.113676,32,1,1749241028,4
+Product 63 - Organic Backpack,p_063,u_037,158.72,1,0,0,0,,2025-06-02 06:57:08.113676,3,0,1748847428,0
+Product 68 - Premium Water Bottle,p_068,u_038,48.32,3,1,0,0,Might come back to this later,2025-05-29 18:49:08.113676,13,1,1748544548,3
+Product 8 - Smart Watch,p_008,u_038,96.47,3,0,0,0,,2025-05-31 18:33:08.113676,3,0,1748716388,5
+Product 68 - Premium Water Bottle,p_068,u_038,48.32,3,1,0,0,Might come back to this later,2025-05-29 18:49:08.113676,13,1,1748544548,3
+Product 85 - Wireless Backpack,p_085,u_038,161.76,2,0,0,0,,2025-06-02 23:33:08.113676,28,0,1748907188,0
+Product 20 - Wireless T-Shirt,p_020,u_038,183.18,1,1,1,0,Considering buying this,2025-05-30 18:30:08.113676,27,1,1748629808,4
+Product 2 - Premium Watch,p_002,u_038,124.24,5,0,0,0,,2025-06-03 13:31:08.113676,26,0,1748957468,1
+Product 20 - Wireless T-Shirt,p_020,u_038,183.18,1,1,1,0,Considering buying this,2025-05-30 18:30:08.113676,27,1,1748629808,4
+Product 98 - Luxury Backpack,p_098,u_038,7.73,2,0,0,0,,2025-06-06 11:25:08.113676,46,0,1749209108,4
+Product 44 - Premium Water Bottle,p_044,u_039,169.29,5,1,0,0,Might come back to this later,2025-05-30 01:11:08.113676,3,1,1748567468,4
+Product 52 - Luxury T-Shirt,p_052,u_039,133.8,2,0,0,0,,2025-05-29 22:00:08.113676,47,0,1748556008,3
+Product 44 - Premium Water Bottle,p_044,u_039,169.29,5,1,0,0,Might come back to this later,2025-05-30 01:11:08.113676,3,1,1748567468,4
+Product 87 - Organic Backpack,p_087,u_039,142.14,1,0,0,0,,2025-05-30 18:31:08.113676,16,0,1748629868,4
+Product 99 - Smart Backpack,p_099,u_039,124.7,5,1,1,0,Looks good but still comparing,2025-06-12 14:41:08.113676,26,1,1749739268,3
+Product 78 - Luxury T-Shirt,p_078,u_039,60.12,1,0,0,0,,2025-05-31 15:55:08.113676,31,0,1748706908,5
+Product 99 - Smart Backpack,p_099,u_039,124.7,5,1,1,0,Looks good but still comparing,2025-06-12 14:41:08.113676,26,1,1749739268,3
+Product 7 - Wireless Headphones,p_007,u_039,134.08,1,0,0,0,,2025-06-03 00:40:08.113676,4,0,1748911208,1
+Product 77 - Luxury Headphones,p_077,u_040,12.61,5,1,0,0,Might come back to this later,2025-06-03 02:33:08.113676,33,1,1748917988,1
+Product 63 - Organic Backpack,p_063,u_040,41.62,1,0,0,0,,2025-05-31 00:24:08.113676,10,0,1748651048,5
+Product 77 - Luxury Headphones,p_077,u_040,12.61,5,1,0,0,Might come back to this later,2025-06-03 02:33:08.113676,33,1,1748917988,1
+Product 9 - Luxury Backpack,p_009,u_040,152.41,5,0,0,0,,2025-06-01 01:29:08.113676,3,0,1748741348,6
+Product 81 - Premium Watch,p_081,u_040,113.72,2,1,0,0,Interesting product,2025-06-06 04:05:08.113676,4,1,1749182708,4
+Product 70 - Wireless T-Shirt,p_070,u_040,117.17,2,0,0,0,,2025-06-01 10:37:08.113676,51,0,1748774228,6
+Product 81 - Premium Watch,p_081,u_040,113.72,2,1,0,0,Interesting product,2025-06-06 04:05:08.113676,4,1,1749182708,4
+Product 84 - Wireless Water Bottle,p_084,u_040,37.0,3,0,0,0,,2025-06-07 10:54:08.113676,47,0,1749293648,5
+Product 79 - Organic Headphones,p_079,u_041,181.59,5,1,0,0,Not sure about this one,2025-06-08 05:05:08.113676,36,1,1749359108,6
+Product 48 - Organic Water Bottle,p_048,u_041,26.13,2,0,0,0,,2025-05-29 21:32:08.113676,31,0,1748554328,3
+Product 79 - Organic Headphones,p_079,u_041,181.59,5,1,0,0,Not sure about this one,2025-06-08 05:05:08.113676,36,1,1749359108,6
+Product 24 - Wireless Water Bottle,p_024,u_041,41.35,4,0,0,0,,2025-05-30 02:05:08.113676,26,0,1748570708,4
+Product 54 - Luxury Water Bottle,p_054,u_041,61.46,4,1,0,0,Not sure about this one,2025-06-12 12:56:08.113676,2,1,1749732968,3
+Product 10 - Wireless Backpack,p_010,u_041,101.75,5,0,0,0,,2025-05-31 06:45:08.113676,24,0,1748673908,5
+Product 54 - Luxury Water Bottle,p_054,u_041,61.46,4,1,0,0,Not sure about this one,2025-06-12 12:56:08.113676,2,1,1749732968,3
+Product 18 - Premium Headphones,p_018,u_041,10.8,1,0,0,0,,2025-05-31 20:43:08.113676,54,0,1748724188,5
+Product 66 - Luxury T-Shirt,p_066,u_042,82.94,5,1,0,0,Interesting product,2025-05-30 00:20:08.113676,22,1,1748564408,4
+Product 50 - Premium Watch,p_050,u_042,50.08,4,0,0,0,,2025-06-02 06:59:08.113676,33,0,1748847548,0
+Product 66 - Luxury T-Shirt,p_066,u_042,82.94,5,1,0,0,Interesting product,2025-05-30 00:20:08.113676,22,1,1748564408,4
+Product 68 - Premium Water Bottle,p_068,u_042,6.53,5,0,0,0,,2025-06-02 11:20:08.113676,20,0,1748863208,0
+Product 20 - Wireless T-Shirt,p_020,u_042,182.14,2,1,1,0,Added to cart for later,2025-05-31 11:20:08.113676,5,1,1748690408,5
+Product 87 - Organic Backpack,p_087,u_042,96.76,5,0,0,0,,2025-06-02 15:36:08.113676,1,0,1748878568,0
+Product 20 - Wireless T-Shirt,p_020,u_042,182.14,2,1,1,0,Added to cart for later,2025-05-31 11:20:08.113676,5,1,1748690408,5
+Product 17 - Smart Watch,p_017,u_042,141.78,2,0,0,0,,2025-06-04 09:56:08.113676,16,0,1749030968,2
+Product 19 - Wireless Water Bottle,p_019,u_043,148.5,4,1,1,1,"Excellent quality, highly recommend",2025-05-30 14:20:08.113676,23,1,1748614808,4
+Product 84 - Wireless Water Bottle,p_084,u_043,50.73,3,0,0,0,,2025-05-31 22:26:08.113676,40,0,1748730368,5
+Product 19 - Wireless Water Bottle,p_019,u_043,148.5,4,1,1,1,"Excellent quality, highly recommend",2025-05-30 14:20:08.113676,23,1,1748614808,4
+Product 28 - Smart Headphones,p_028,u_043,153.56,5,0,0,0,,2025-06-01 11:37:08.113676,56,0,1748777828,6
+Product 28 - Smart Headphones,p_028,u_043,190.35,1,1,0,0,Not sure about this one,2025-06-03 05:14:08.113676,46,1,1748927648,1
+Product 56 - Smart Backpack,p_056,u_043,195.12,2,0,0,0,,2025-06-04 00:04:08.113676,6,0,1748995448,2
+Product 28 - Smart Headphones,p_028,u_043,190.35,1,1,0,0,Not sure about this one,2025-06-03 05:14:08.113676,46,1,1748927648,1
+Product 98 - Luxury Backpack,p_098,u_043,180.48,5,0,0,0,,2025-06-06 04:00:08.113676,52,0,1749182408,4
+Product 52 - Luxury T-Shirt,p_052,u_044,63.0,1,1,1,1,"Excellent quality, highly recommend",2025-05-31 11:38:08.113676,45,1,1748691488,5
+Product 27 - Premium Backpack,p_027,u_044,57.47,4,0,0,0,,2025-05-29 16:06:08.113676,33,0,1748534768,3
+Product 52 - Luxury T-Shirt,p_052,u_044,63.0,1,1,1,1,"Excellent quality, highly recommend",2025-05-31 11:38:08.113676,45,1,1748691488,5
+Product 76 - Smart Backpack,p_076,u_044,139.64,2,0,0,0,,2025-05-29 21:01:08.113676,23,0,1748552468,3
+Product 18 - Premium Headphones,p_018,u_044,66.07,2,1,0,0,Might come back to this later,2025-06-03 01:56:08.113676,20,1,1748915768,1
+Product 93 - Premium Water Bottle,p_093,u_044,27.49,5,0,0,0,,2025-05-30 18:18:08.113676,1,0,1748629088,4
+Product 18 - Premium Headphones,p_018,u_044,66.07,2,1,0,0,Might come back to this later,2025-06-03 01:56:08.113676,20,1,1748915768,1
+Product 13 - Organic Backpack,p_013,u_044,31.44,4,0,0,0,,2025-05-31 10:57:08.113676,59,0,1748689028,5
+Product 61 - Wireless Water Bottle,p_061,u_045,130.95,4,1,1,1,"Excellent quality, highly recommend",2025-05-29 13:02:08.113676,29,1,1748523728,3
+Product 24 - Wireless Water Bottle,p_024,u_045,54.4,4,0,0,0,,2025-06-01 04:54:08.113676,43,0,1748753648,6
+Product 61 - Wireless Water Bottle,p_061,u_045,130.95,4,1,1,1,"Excellent quality, highly recommend",2025-05-29 13:02:08.113676,29,1,1748523728,3
+Product 30 - Premium Headphones,p_030,u_045,64.95,2,0,0,0,,2025-06-01 08:03:08.113676,9,0,1748764988,6
+Product 97 - Premium Headphones,p_097,u_045,161.5,4,1,1,1,"Excellent quality, highly recommend",2025-06-01 05:38:08.113676,30,1,1748756288,6
+Product 46 - Smart Backpack,p_046,u_045,170.77,5,0,0,0,,2025-06-07 16:07:08.113676,26,0,1749312428,5
+Product 97 - Premium Headphones,p_097,u_045,161.5,4,1,1,1,"Excellent quality, highly recommend",2025-06-01 05:38:08.113676,30,1,1748756288,6
+Product 78 - Luxury T-Shirt,p_078,u_045,142.23,4,0,0,0,,2025-06-08 15:36:08.113676,59,0,1749396968,6
+Product 86 - Smart Watch,p_086,u_046,129.63,3,1,1,1,"Excellent quality, highly recommend",2025-05-29 06:38:08.113676,29,1,1748500688,3
+Product 95 - Wireless Watch,p_095,u_046,187.42,2,0,0,0,,2025-06-07 07:15:08.113676,13,0,1749280508,5
+Product 86 - Smart Watch,p_086,u_046,129.63,3,1,1,1,"Excellent quality, highly recommend",2025-05-29 06:38:08.113676,29,1,1748500688,3
+Product 14 - Premium Headphones,p_014,u_046,68.54,1,0,0,0,,2025-06-11 12:11:08.113676,51,0,1749643868,2
+Product 67 - Premium Headphones,p_067,u_046,170.98,3,1,0,0,Interesting product,2025-06-05 01:18:08.113676,6,1,1749086288,3
+Product 61 - Wireless Water Bottle,p_061,u_046,76.46,5,0,0,0,,2025-06-17 18:25:08.113676,12,0,1750184708,1
+Product 67 - Premium Headphones,p_067,u_046,170.98,3,1,0,0,Interesting product,2025-06-05 01:18:08.113676,6,1,1749086288,3
+Product 38 - Luxury Watch,p_038,u_046,61.42,3,0,0,0,,2025-06-21 04:04:08.113676,55,0,1750478648,5
+Product 50 - Premium Watch,p_050,u_047,73.55,4,1,0,0,Interesting product,2025-06-04 02:55:08.113676,21,1,1749005708,2
+Product 87 - Organic Backpack,p_087,u_047,196.09,5,0,0,0,,2025-06-01 20:50:08.113676,24,0,1748811008,6
+Product 50 - Premium Watch,p_050,u_047,73.55,4,1,0,0,Interesting product,2025-06-04 02:55:08.113676,21,1,1749005708,2
+Product 42 - Premium Headphones,p_042,u_047,123.64,5,0,0,0,,2025-06-07 11:51:08.113676,35,0,1749297068,5
+Product 100 - Smart Headphones,p_100,u_047,163.39,1,1,0,0,Not sure about this one,2025-06-08 00:53:08.113676,35,1,1749343988,6
+Product 89 - Luxury Backpack,p_089,u_047,127.71,5,0,0,0,,2025-06-09 20:13:08.113676,31,0,1749499988,0
+Product 100 - Smart Headphones,p_100,u_047,163.39,1,1,0,0,Not sure about this one,2025-06-08 00:53:08.113676,35,1,1749343988,6
+Product 34 - Smart T-Shirt,p_034,u_047,37.56,2,0,0,0,,2025-06-09 23:45:08.113676,48,0,1749512708,0
+Product 20 - Wireless T-Shirt,p_020,u_048,133.54,3,1,0,0,Not sure about this one,2025-06-05 17:46:08.113676,52,1,1749145568,3
+Product 74 - Luxury Watch,p_074,u_048,120.79,5,0,0,0,,2025-05-30 12:15:08.113676,42,0,1748607308,4
+Product 20 - Wireless T-Shirt,p_020,u_048,133.54,3,1,0,0,Not sure about this one,2025-06-05 17:46:08.113676,52,1,1749145568,3
+Product 32 - Organic T-Shirt,p_032,u_048,57.03,1,0,0,0,,2025-05-30 12:29:08.113676,25,0,1748608148,4
+Product 70 - Wireless T-Shirt,p_070,u_048,160.97,2,1,1,1,"Perfect fit, very satisfied",2025-06-07 17:52:08.113676,32,1,1749318728,5
+Product 27 - Premium Backpack,p_027,u_048,160.92,4,0,0,0,,2025-05-30 19:53:08.113676,27,0,1748634788,4
+Product 70 - Wireless T-Shirt,p_070,u_048,160.97,2,1,1,1,"Perfect fit, very satisfied",2025-06-07 17:52:08.113676,32,1,1749318728,5
+Product 70 - Wireless T-Shirt,p_070,u_048,16.89,3,0,0,0,,2025-05-31 00:58:08.113676,4,0,1748653088,5
+Product 88 - Smart T-Shirt,p_088,u_049,48.99,4,1,1,0,Considering buying this,2025-05-30 06:41:08.113676,5,1,1748587268,4
+Product 18 - Premium Headphones,p_018,u_049,72.06,4,0,0,0,,2025-05-29 03:17:08.113676,35,0,1748488628,3
+Product 88 - Smart T-Shirt,p_088,u_049,48.99,4,1,1,0,Considering buying this,2025-05-30 06:41:08.113676,5,1,1748587268,4
+Product 4 - Wireless Backpack,p_004,u_049,190.17,2,0,0,0,,2025-05-29 16:27:08.113676,54,0,1748536028,3
+Product 63 - Organic Backpack,p_063,u_049,175.11,1,1,0,0,Not sure about this one,2025-05-31 20:56:08.113676,40,1,1748724968,5
+Product 13 - Organic Backpack,p_013,u_049,185.36,5,0,0,0,,2025-06-02 08:30:08.113676,50,0,1748853008,0
+Product 63 - Organic Backpack,p_063,u_049,175.11,1,1,0,0,Not sure about this one,2025-05-31 20:56:08.113676,40,1,1748724968,5
+Product 69 - Smart Water Bottle,p_069,u_049,97.34,2,0,0,0,,2025-06-04 07:52:08.113676,20,0,1749023528,2
+Product 26 - Premium Backpack,p_026,u_050,147.83,5,1,0,0,Interesting product,2025-06-08 21:56:08.113676,49,1,1749419768,6
+Product 26 - Premium Backpack,p_026,u_050,183.1,4,0,0,0,,2025-05-29 21:26:08.113676,33,0,1748553968,3
+Product 26 - Premium Backpack,p_026,u_050,147.83,5,1,0,0,Interesting product,2025-06-08 21:56:08.113676,49,1,1749419768,6
+Product 85 - Wireless Backpack,p_085,u_050,137.77,2,0,0,0,,2025-06-02 04:19:08.113676,41,0,1748837948,0
+Product 75 - Smart T-Shirt,p_075,u_050,117.64,1,1,0,0,Might come back to this later,2025-06-19 14:58:08.113676,38,1,1750345088,3
+Product 45 - Premium Headphones,p_045,u_050,122.87,2,0,0,0,,2025-06-02 10:37:08.113676,33,0,1748860628,0
+Product 75 - Smart T-Shirt,p_075,u_050,117.64,1,1,0,0,Might come back to this later,2025-06-19 14:58:08.113676,38,1,1750345088,3
+Product 19 - Wireless Water Bottle,p_019,u_050,132.97,5,0,0,0,,2025-06-04 22:49:08.113676,59,0,1749077348,2
