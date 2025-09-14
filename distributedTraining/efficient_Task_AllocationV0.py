@@ -1,8 +1,9 @@
+####mine, use in interview
 from collections import defaultdict
 import copy
 
 
-def allocate_tasks(tasks, models):
+def allocate_tasks(tasks, models, capacity_req):
     """
     Allocates tasks to models in the most efficient way.
 
@@ -24,51 +25,74 @@ def allocate_tasks(tasks, models):
                - A list of tasks that could not be allocated.
                - The updated models dictionary showing remaining counts.
     """
-    # Define a canonical order for model sizes.
-    size_order = {'small': 0, 'medium': 1, 'large': 2}
 
     # Create a copy of the models dictionary to track availability.
     # We use a defaultdict to handle cases where a model type is not available.
-    available_models = defaultdict(int, copy.deepcopy(models))
 
-    # Dictionaries to store the results.
-    task_allocations = {}
-    unallocated_tasks = []
+    available_models = defaultdict(int, copy.deepcopy(models))
+    model_capa = []
+    for key,val in available_models.items():
+        model_type = key[0]
+        model_size  = key[1]
+        model_size_num = capacity_req.get(model_size, -1)
+
+        tmp = [model_type, model_size, model_size_num]
+        model_capa.append(tmp)
+
+    model_capa = sorted(model_capa, key=lambda x:x[2])
 
     # Sort tasks to handle larger tasks first. This prevents a large task that
     # needs a large model from being "starved" of resources by smaller tasks.
+    new_tasks = []
+    len_tasks = len(tasks)
+    for idx in range(len_tasks):
+        task = tasks[idx]
+        task_type = task[0]
+        task_size = task[1]
+        task_size_num = capacity_req.get(task_size, -1)
+        tmp = [task_type, task_size, task_size_num, idx]
+        new_tasks.append(tmp)
+
     sorted_tasks = sorted(
-        tasks,
-        key=lambda x: size_order.get(x[1], -1),
+        new_tasks,
+        key=lambda x: x[2],
         reverse=True
     )
 
-    # Process each task one by one.
-    for i, (task_type, task_size) in enumerate(sorted_tasks):
+    # Dictionaries to store the results.
+    task_allocations = []
+    unallocated_tasks = []
+
+    for idx, task_tup in enumerate(sorted_tasks):
+        task_type = task_tup[0]
+        task_size = task_tup[1]
+        task_size_num = task_tup[2]
+        ori_idx = task_tup[3]
         allocated = False
 
-        # Determine the minimum size required for the task.
-        task_size_level = size_order.get(task_size, -1)
+        for model_tup in model_capa:
+            model_type = model_tup[0]
+            model_size = model_tup[1]
+            model_size_num = model_tup[2]
+            if model_type != task_type:
+                continue
 
-        # Iterate through model sizes from smallest to largest that can handle the task.
-        for model_size in ['small', 'medium', 'large']:
-            model_size_level = size_order.get(model_size)
+            if model_size_num < task_size_num:
+                continue
 
-            # Check if the model is large enough for the task.
-            if model_size_level >= task_size_level:
-                model_key = (task_type, model_size)
+            model_key = tuple([model_type, model_size])
+            if available_models[model_key] < 1:
+                continue
 
-                # Check if this type and size of model is available.
-                if available_models.get(model_key, 0) > 0:
-                    # Allocate the task to this model.
-                    available_models[model_key] -= 1
-                    task_allocations[i] = model_key
-                    allocated = True
-                    break  # Move to the next task.
+            allocated = True
+            available_models[model_key] -= 1
 
-        # If no suitable model was found after checking all sizes.
-        if not allocated:
-            unallocated_tasks.append((task_type, task_size))
+            tmp = [task_type, task_size, model_type, model_size, ori_idx]
+            task_allocations.append(tmp)
+
+        if allocated == False:
+            tmp = [task_type, task_size, ori_idx]
+            unallocated_tasks.append(tmp)
 
     return task_allocations, unallocated_tasks, available_models
 
@@ -97,6 +121,11 @@ if __name__ == "__main__":
         ('image', 'large'): 1,
     }
 
+    capacity_req = defaultdict(int)
+    capacity_req['small'] = 0
+    capacity_req['medium'] = 1
+    capacity_req['large'] = 2
+
     print("Initial Tasks:")
     for i, task in enumerate(tasks):
         print(f"  Task {i}: {task}")
@@ -106,18 +135,18 @@ if __name__ == "__main__":
         print(f"  {model}: {count}")
 
     # Perform the allocation.
-    allocations, unallocated, remaining_models = allocate_tasks(tasks, models)
+    allocations, unallocated, remaining_models = allocate_tasks(tasks, models, capacity_req)
 
+    allocations = sorted(allocations, key=lambda x:x[-1])
     print("\n--- Allocation Results ---")
-    for task_id, model_assigned in allocations.items():
-        # Map the task ID back to the original task definition for a clearer printout.
-        original_task = tasks[task_id]
-        print(f"Task {original_task} allocated to Model {model_assigned}")
+    for (task_type, task_size, model_type, model_size, ori_idx) in allocations:
+        print(f"Task {ori_idx}, {task_type}, {task_size} allocated to Model {model_type}, {model_size}")
 
     print("\n--- Unallocated Tasks ---")
     if unallocated:
-        for task in unallocated:
-            print(f"Could not allocate: {task}")
+        unallocated = sorted(unallocated, key=lambda x: x[-1])
+        for (task_type, task_size, ori_idx) in unallocated:
+            print(f"Could not allocate: {ori_idx}, {task_type}, {task_size}")
     else:
         print("All tasks were successfully allocated.")
 
