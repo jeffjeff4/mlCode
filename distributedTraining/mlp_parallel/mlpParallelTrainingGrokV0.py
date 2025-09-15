@@ -231,6 +231,26 @@
 ####
 ####grad_W1 = sum(grad_W1_rank)
 
+####-------------------------------------------------------------------------------------------------------
+####below code says in a 2 layers mlp, tensor parallel, backward propagation, the all gather happens to collection dA1, which is the derivative of A1 across all gpus? questions, is it correct the all gather operation happens to collect dA1 across all gpus?
+####
+####if you think it is not correct, could you please implement
+####def train_tensor_parallel(X, Y_one_hot, num_devices=2):
+####and
+####def tensor_parallel_worker(device_id, num_devices, hidden_split, X_batch, Y_batch, W1_part, b1_part, W2_part, b2, queue_in, queue_out):
+####which are in your previous code?
+####
+####No, the all-gather operation to collect dA1 across all GPUs is not correct (or necessary) in a standard tensor parallel implementation for the backward propagation of a 2-layer MLP. In efficient TP (as seen in frameworks like Megatron-LM), dA1 (the gradient with respect to the activation after the first layer) is computed in a sharded manner locally on each device during the backward pass for the second (row-parallel) layer. Each device uses its local shard of dA1 directly for subsequent computations, such as deriving dZ1 and the sharded gradients for W1—without needing to gather, concatenate, or broadcast the full dA1. The code and visualization include this step redundantly, which works but introduces unnecessary communication overhead.
+####
+####In standard TP for this setup:
+####- During the backward pass for the row-parallel layer (W2), dA1_sharded is computed locally as dZ2 @ W2_part.T (no communication required for this gradient propagation).
+####- This sharded dA1 is then used directly in the column-parallel layer's backward pass.
+####- If gradient propagation were needed further (e.g., to a previous layer's input, like dX), an all-reduce (sum) would be used instead to aggregate partial contributions—not an all-gather (concat) on dA1 itself.
+####
+####For a simple 2-layer MLP (where the first layer takes the input data directly), no further propagation is needed, so there is typically no additional communication in the backward pass beyond what's already handled.
+####
+####Below is the corrected implementation of train_tensor_parallel and tensor_parallel_worker for a 2-layer MLP with tensor parallelism (TP) and Adam optimizer, addressing the incorrect all-gather on dA1. The implementation uses multiprocessing.Queue for communication (as requested for teaching purposes), supports 2 GPUs (num_devices=2), and includes ASCII visualizations for forward and backward flows. The tensor parallelism follows real-world conventions: W1 is split column-wise, W2 is row-wise, and no unnecessary all-gather is performed for dA1. The code also generates sample data X and Y_one_hot, and includes data parallelism (DP) for completeness, though set to DP=1 for 2 GPUs (TP=2).
+
 
 import numpy as np
 from multiprocessing import Process, Queue
