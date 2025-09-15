@@ -1,4 +1,10 @@
 # filename: attention_tp_backward.py
+#can not run, can not be used in interview
+#####################################################################
+######wrong version
+#####################################################################
+
+
 import torch
 import torch.distributed as dist
 import torch.multiprocessing as mp
