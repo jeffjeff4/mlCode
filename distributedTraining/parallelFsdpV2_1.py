@@ -1,3 +1,5 @@
+####not runnble, could not be used in an interview
+
 import numpy as np
 import multiprocessing as mp
 from multiprocessing import Queue
