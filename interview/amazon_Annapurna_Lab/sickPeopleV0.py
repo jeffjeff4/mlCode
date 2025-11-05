@@ -27,9 +27,9 @@
 ####
 ####'''
 
-o is the people has virus
-x is the people do not have virus
-it takes 4 minutes virus spread to everyone
+####o is the people has virus
+####x is the people do not have virus
+####it takes 4 minutes virus spread to everyone
 
 import collections
 from collections import deque
