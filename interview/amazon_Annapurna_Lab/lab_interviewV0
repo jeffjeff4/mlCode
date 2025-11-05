@@ -1,0 +1,847 @@
+We want to train a SimpleMLP model on an AIChip which has a peak rating of 100 Tflops. 
+The memory of each AIChip is 8GB. 
+The SimpleMLP consists of a stack of 3 layers where 
+each hidden layer is a linear module followed by a non-linear activation and an output layer in the end 
+using a simple Mean Square Loss. 
+Also, for simplification assume that the input and outputs for each of the layer is the same 
+and is a vector of size 10^4.  
+
+
+what is the total number of parameters of the model?
+
+hidden_dim = 10^4
+num_parm_layer = hidden_dim ^ 2 + hidden_dim
+num_ttl_parm = num_parm_layer * num_layres
+
+
+total memry:
+    1) model parm 
+    2) gradints
+    3) optimizer
+    4) activations
+    5) misc
+    
+    model_parm = num_ttl_parm * 2
+    gradients = num_ttl_parm * 2
+    optimizer = num_ttl_parm * 2 * 4 (adam or adamw, fp32)
+    activation = hidden_dim ^ 2 * batch_size * num_layers * 2
+    
+ Compute Model Flops Utilization (MFU) of single worker which trains with a throughput of 200 samples/sec. 
+ Also assume that the input is of shape  10 ^2 x 10 ^4, i.e the sequence length is 10^2 tokens long and 
+ each token has 10^4 as the embedding dimension/size.
+    
+
+flops_per_sample = 6 * num_ttl_parms
+actual_flops = flops_per_sample * throughput
+actual_tflops = actual_flops / 1e12
+mfu = (actual_flops / chip_tflops) * 100
+
+
+input_dim = seq_len * embedding_dim
+#layer 1
+ttl_parms = (input_dim * hidden_dim) + hidden_dim
+#middle_layer
+ttl_parms += (num_layers - 1) * (hidden_dim^2 + hidden_dim)
+#output layer
+ttl_parms += hidden_dim^2 + hidden_dim
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+How to scale out training for llama 70B:
+    -
+    1. adding more hardware
+    
+    2. software:
+        1) using CUDA kernel function
+        
+        2) FA
+        
+        3) MIx precision
+        
+        4) torch.compile
+        
+    3. parallelism
+        1) fsdp
+        2) tp
+        3) ep
+        4) sp
+        
+        
+    4.data pipeline
+    
+    5. quatization
+    
+    
+    
+Training loop that uses FSDP implementation:
+    
+    model.train()
+    for epoch in range(epochs):
+        
+        train_loader.sampler.set_epoch(epoch)
+        ttl_loss = 0.0
+        
+        for batch_idx, (data, target) in enumerate(train_loader):
+            data, target = data.to(rank), target.to(rank)
+            
+            optimizer.zero_grad()
+            output = model(data)
+            
+            loss = loss_fn(output, target)
+            ttl_loss += loss.items()
+            
+            loss.backward()
+            optimizer.step()
+            
+            if rank == 0:
+                avg_loss = ttl_loss / len(train_loader)
+                if (epoch % 1000) ==0:
+                    print("")
+                    
+                    
+    
+    
+    model = 
+    
+    forward pass:
+        
+    
+Assume 4 layer FSDP, 4GPUs
+
+Sharding
+layer1 - GPU1
+..
+layer-n - GPU-n
+
+FWD pass collectives
+for layer idx:
+    all gather model parameters to all other gpus
+    forward pass
+    discard model params for layer idx
+
+
+BWD pass collectives
+#using ring all reduce to calculate gradients
+#all reduce could be separated reduce and all gather 
+for layer idx:
+    all-gather model params
+    bachward pass
+    discard model params for layer idx
+    reduce-scatter gradients 
+    to make sure all rank get the updated model parameters
+
+
+
+
+
+
+
+'''
+| o | x |   |
+| x |   |   |
+| x | x | x |
+
+| o | o |   |
+| o |   |   |
+| x | x | x |
+
+| o | o |   |
+| o |   |   |
+| o | x | x |
+
+| o | o |   |
+| o |   |   |
+| o | o | x |
+
+| o | o |   |
+| o |   |   |
+| o | o | o |
+
+
+'''
+
+class VirusSpreader:
+    
+    SICK = 'o'
+    HEALTHY = 'x'
+    EMPTY = ' '
+    
+    def __init__(self, room_layout):
+        #sanity check
+        
+        if not room_layout or room_layout[0]:
+            self.grid = []
+            self.rows = 0
+            self.col = 0
+        else:
+            self.rows = len(room_layout)
+            self.col = len(room_layout[0])
+            self.grid = [row[:] for row in room_layout]
+        
+        self.DIRECTIONS = [[-1, 0], [1, 0], [0, -1], [0, 1]]        
+        
+    def _is_valid(self, r, c):
+        if r>=0 and r<self.rows and c>=0 and c<self.cols:
+            return True
+            
+        return False
+        
+        
+    
+    def calculateSpreadTime(self):
+        #sanity check
+        if self.rows == 0:
+            return 0
+            
+            q = deque()
+            healthy_count = 0
+            for r in range(self.rows):
+                for c in range(self.cols):
+                    if self.grid[r][c] == self.HEALTHY:
+                        healthy_count += 1
+                    elif self.grid[r][c] == self.SICK:
+                        q.append((r, c, 0))
+                        
+            if healthy_count == 0:
+                return 0
+                
+            if len(q) == 0:
+                return -1
+                
+            max_mins = 0
+            
+            while len(q) > 0:
+                r, c, time = q.popleft()
+                max_mins = time
+                
+                for dr, dc in self.DIRECTIONS:
+                    new_r, new_c = r+dr, c+dc
+                    if self._is_valid(new_r, new_c) == False:
+                        continue
+                    
+                    if self.grid[new_r][new_c] != self.HEALTHY:
+                        continue
+                    
+                    self.grid[new_r][new_c] = self.SICK
+                    healthy_count -= 1
+                    q.append(new_r, new_c, time+1)
+                    
+            
+            if healthy_count == 0:
+                return max_mins
+                
+            return -1
+            
+
+'''
+5 mins
+| o(M) | x |
+| o | x(M) |
+
+not spreading
+| o(M) | x(M) |
+
+'''
+
+
+            
+            
+                
+        
+import collections
+import heapq
+from collections import deque
+from typing import List, Tuple
+
+class VirusSpreader:
+    """
+    Simulates the spread of a virus in a room layout using Dijkstra's Algorithm
+    to handle variable infection times (weighted edges).
+
+    The room is represented by a 2D grid where seats can be:
+    - SICK_NO_MASK ('o'):   Spreads to 'x' in 1 minute.
+    - SICK_MASKED ('O'):    Spreads to 'x' in 4 minutes.
+    - HEALTHY_NO_MASK ('x'): Can be infected.
+    - HEALTHY_MASKED ('m'): Immune, acts as a barrier.
+    - EMPTY (' '):          A barrier.
+    """
+
+    # --- Constants for seat states ---
+    SICK_NO_MASK = 'o'
+    SICK_MASKED = 'O'
+    HEALTHY_NO_MASK = 'x'
+    HEALTHY_MASKED = 'm'
+    EMPTY = ' '
+    
+    # --- Directions for BFS/Dijkstra (Up, Down, Left, Right) ---
+    DIRECTIONS = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+
+    def __init__(self, room_layout: List[List[str]]):
+        """
+        Initializes the simulator with a deep copy of the room layout.
+        """
+        if not room_layout or not room_layout[0]:
+            self.grid = []
+            self.rows = 0
+            self.cols = 0
+        else:
+            self.rows = len(room_layout)
+            self.cols = len(room_layout[0])
+            if not all(len(row) == self.cols for row in room_layout):
+                raise ValueError("Grid rows must all be the same length.")
+            self.grid = [row[:] for row in room_layout]
+
+    def _is_valid(self, r: int, c: int) -> bool:
+        """Helper to check if a coordinate is within the grid bounds."""
+        return 0 <= r < self.rows and 0 <= c < self.cols
+
+    def calculate_spread_time(self) -> int:
+        """
+        Calculates the total time for the virus to infect all reachable
+        healthy (no-mask) people using Dijkstra's algorithm.
+
+        Returns:
+            int: The number of minutes required to infect the *last*
+                 reachable 'x' person.
+                 - Returns 0 if there are no 'x' people to infect.
+                 - Returns -1 if there are 'x' people but no 'o' or 'O'
+                   people to start the spread.
+                 - Returns -1 if there are 'x' people who are unreachable.
+        """
+        if self.rows == 0:
+            return 0
+
+        # Priority Queue for Dijkstra's: stores (time_to_infect, row, col)
+        # We use a List and the heapq module.
+        pq: List[Tuple[int, int, int]] = []
+        
+        # Grid to store the minimum time to infect each cell
+        distances = [[float('inf')] * self.cols for _ in range(self.rows)]
+        
+        healthy_people_count = 0
+
+        # --- Step 1: Initialize Queue and Count Healthy People ---
+        for r in range(self.rows):
+            for c in range(self.cols):
+                state = self.grid[r][c]
+                if state == self.HEALTHY_NO_MASK:
+                    healthy_people_count += 1
+                elif state == self.SICK_NO_MASK or state == self.SICK_MASKED:
+                    # Add all initial virus sources with time 0
+                    distances[r][c] = 0
+                    heapq.heappush(pq, (0, r, c))
+
+        # --- Step 2: Handle Edge Cases ---
+        if healthy_people_count == 0:
+            return 0  # No healthy people to infect.
+        if not pq:
+            return -1 # Healthy people exist, but no infection source.
+
+        # --- Step 3: Run Dijkstra's Algorithm ---
+        while pq:
+            # Pop the person with the *smallest* infection time
+            time, r, c = heapq.heappop(pq)
+
+            # If this is a stale entry (we've already found a faster path
+            # to this node), skip it.
+            if time > distances[r][c]:
+                continue
+                
+            # Determine the spread cost *from* this person
+            current_state = self.grid[r][c]
+            
+            if current_state == self.SICK_NO_MASK:
+                spread_cost = 1
+            elif current_state == self.SICK_MASKED:
+                spread_cost = 4
+            elif current_state == self.HEALTHY_NO_MASK:
+                # This person was infected at 'time'. They now spread.
+                # *** KEY ASSUMPTION ***:
+                # A newly infected person becomes SICK_NO_MASK ('o')
+                # and spreads with a cost of 1.
+                spread_cost = 1
+            else:
+                # This is an EMPTY (' '), HEALTHY_MASKED ('m'),
+                # or a stale node. It cannot spread.
+                continue 
+
+            # Explore all 4 adjacent neighbors
+            for dr, dc in self.DIRECTIONS:
+                nr, nc = r + dr, c + dc
+
+                # Check if neighbor is valid AND is an infectable person
+                if (self._is_valid(nr, nc) and 
+                    self.grid[nr][nc] == self.HEALTHY_NO_MASK):
+                    
+                    new_time = time + spread_cost
+                    
+                    # If we found a shorter path to infect this neighbor
+                    if new_time < distances[nr][nc]:
+                        distances[nr][nc] = new_time
+                        heapq.heappush(pq, (new_time, nr, nc))
+
+        # --- Step 4: Final Check ---
+        # Find the max time it took to infect any healthy person.
+        # If any healthy person is still 'inf', they were unreachable.
+        max_minutes = 0
+        for r in range(self.rows):
+            for c in range(self.cols):
+                if self.grid[r][c] == self.HEALTHY_NO_MASK:
+                    infection_time = distances[r][c]
+                    if infection_time == float('inf'):
+                        return -1  # An 'x' was unreachable
+                    max_minutes = max(max_minutes, infection_time)
+
+        return max_minutes
+
+# --- Test Cases ---
+if __name__ == "__main__":
+    
+    print("--- Running Test Cases (with Masks) ---")
+
+    def run_test(name, layout, expected):
+        print(f"\nTest: {name}")
+        for row in layout:
+            print(f"  {row}")
+        try:
+            simulator = VirusSpreader(layout)
+            result = simulator.calculate_spread_time()
+            assert result == expected
+            print(f"Result: {result} (Expected: {expected}) -> ✅ PASS")
+        except Exception as e:
+            print(f"Result: ERROR ({e}) (Expected: {expected}) -> ❌ FAIL")
+
+    # Test 1: Provided Example (but with 'O' SICK_MASKED)
+    example_layout_masked = [
+        ['O', 'x', ' '],  # 'O' takes 4 mins to infect (0,1) and (1,0)
+        ['x', ' ', ' '],
+        ['x', 'x', 'x']
+    ]
+    # (0,0) infects (0,1) at time 4. (0,1) is now a spreader (cost 1).
+    # (0,0) infects (1,0) at time 4. (1,0) is now a spreader (cost 1).
+    # (1,0) infects (2,0) at time 4+1=5.
+    # (2,0) infects (2,1) at time 5+1=6.
+    # (2,1) infects (2,2) at time 6+1=7.
+    # Last infection at time 7.
+    run_test("Original Example, but SICK_MASKED", example_layout_masked, 7)
+
+    # Test 2: Healthy Mask ('m') acts as a wall
+    healthy_mask_wall = [
+        ['o', 'm', 'x']
+    ]
+    # 'o' cannot infect 'x' because 'm' is a wall.
+    run_test("Healthy Mask blocks spread", healthy_mask_wall, -1)
+
+    # Test 3: SICK_MASKED ('O') spreads slowly
+    slow_spread = [
+        ['O', 'x', 'x']
+    ]
+    # (0,0) infects (0,1) at time 4.
+    # (0,1) (now a cost-1 spreader) infects (0,2) at time 4+1=5.
+    run_test("SICK_MASKED spreads slowly", slow_spread, 5)
+
+    # Test 4: Mixed Sources (Dijkstra's main use case)
+    mixed_source_layout = [
+        ['o', 'x', 'x', 'x', 'O']
+    ]
+    # 'o' at (0,0) starts at t=0.
+    # 'O' at (0,4) starts at t=0.
+    # 'o' infects (0,1) at t=1.
+    # (0,1) infects (0,2) at t=1+1=2.
+    # 'O' infects (0,3) at t=4.
+    # Path to (0,2) from 'O' is: (0,4)->(0,3) at t=4. (0,3)->(0,2) at t=4+1=5.
+    # The faster path (t=2) wins.
+    # Last infection is (0,3) at t=4.
+    run_test("Mixed Sources (fast and slow)", mixed_source_layout, 4)
+
+    # Test 5: All healthy, no sick
+    run_test("No Sick People", [['x', 'x'], ['m', 'x']], -1)
+    
+    # Test 6: All sick, no healthy
+    run_test("No Healthy People", [['o', 'O'], ['m', ' ']], 0)
+
+    # Test 7: Original Example (unmasked)
+    example_layout_original = [
+        ['o', 'x', ' '],
+        ['x', ' ', ' '],
+        ['x', 'x', 'x']
+    ]
+    # (0,0) infects (0,1) and (1,0) at t=1.
+    # (1,0) infects (2,0) at t=2.
+    # (2,0) infects (2,1) at t=3.
+    # (2,1) infects (2,2) at t=4.
+    run_test("Original Example (SICK_NO_MASK)", example_layout_original, 4)
+
+
+
+#------------------------------------------------------------------
+
+'''
+Suppose we want to categorize reviews on Amazon products, and group reviews that are similar.
+So, given two product reviews, let’s say ‘review1’ and ‘review2’, write a function that evaluates if these are similar.
+Each review is a single sentence, and is a list of words. We denote each word as ‘review[x]’.
+We say that ‘review1’ and ‘review2’ are similar if ‘review1[x]’ and ‘review2[x]’ are synonymous.
+
+In this function, we are given ‘review1’ and ‘review2’, as well as a list of synonym pairs ’synonyms’.
+
+# Example:
+
+review1 = [“great”, “product”]
+review2 = [“amazing”, “device”]
+synonyms = [[“great”, “amazing”], [“product”, “device”]]
+
+Result: True
+
+'''
+
+Class Finder:
+    def __init__(self, synonyms):
+        self.parent = {}
+        self.rank = {}
+        
+        for w1, w2 in synonyms:
+            self.union(w1, w2)
+            
+            
+    def find(self, word):
+        if word not in self.parent:
+            self.parent[word] = word
+            self.rank[word] = 0
+            return word
+            
+        if self.parent[word] != word:
+            self.parent[word] = self.find(self.parent[word])
+            
+        return self.parent[word]
+    
+    def union(self, w1, w2):
+        root1 = self.find(w1)
+        root2 = self.find(w2)
+        
+        if root1 != root2:
+            if self.rank[root1] < self.rank[root2]:
+                self.parent[root1] = root2
+                self.rank[root2] += 1
+            elif self.rank[root1] > self.rank[root2]:
+                self.parent[root2] = root1
+                self.rank[root1] += 1
+            else:
+                self.parent[root2] = root1
+                self.rank[root1] += 1
+                
+            return True
+            
+        return False
+        
+        
+    def are_synonyms(w1, w2):
+        root1 = self.find(w1)
+        root2 = self.find(w2)
+        if root1 == root2:
+            return True
+            
+        return False
+        
+                
+
+class ReviewComparator:
+    def __init__(self, synonyms):
+        #sanity check
+        if not isinstance(synonyms, list):
+            raise TypeError("synonyms should be a list")
+            
+        self.synonyms_finder = Finder(synonyms)
+        
+        
+    def are_review_similar(self, review1, review2):
+        if len(review1) != len(review2):
+            return False
+            
+        for w1, w2 in zip(review1, review2):
+            if self.synonyms_finder.are_synonyms(w1, w2) == False:
+                return False
+                
+        return True
+        
+        
+        
+review1 = [“great”, “product”]
+review2 = [“amazing”, “device”]
+synonyms = [[“great”, “amazing”], [“product”, “device”]]
+
+
+#------------------------------------------------------------------
+
+Question: 
+/*
+ * Question:
+ * Implement a cyclic ring buffer of size RING_SIZE. Each element in the ring stores
+ * an integer. If the ring is full, newer values should overwrite the oldest
+ * values. 
+ * When reading from the ring, the oldest entry is returned (each entry 
+ * can be read only once). 
+ *
+ * Implement the data struct and 3 functions below:
+ */
+
+// [null, null, null]
+// Insert 10, 20, 30
+// [10, 20, 30]
+// Insert 40, 50
+// [40, 50, 30]
+// Read
+// [40, 50, null]
+// Read
+// [null, 50, null]
+
+#define RING_SIZE 3
+
+// you don’t have to use a struct, it’s just here as an example.
+struct my_ring {
+};
+    
+void ring_init(struct my_ring *r)
+{   
+}   
+
+int ring_read(struct my_ring *r)
+{
+        return 0;
+}   
+
+void ring_write(struct my_ring *r, int val)
+{
+}
+
+
+# -*- coding: utf-8 -*-
+"""
+Implementation of a Cyclic Ring Buffer in Python.
+"""
+
+class CyclicRingBuffer:
+    """
+    A cyclic ring buffer of a fixed size.
+
+    This data structure implements a first-in, first-out (FIFO) queue with a
+    fixed capacity. When the buffer is full, newly written values will overwrite
+    the oldest values in the buffer. When reading, the oldest value is returned
+    and removed from the buffer.
+
+    All operations (write, read) are performed in constant time.
+
+    Attributes:
+        capacity (int): The maximum number of elements the buffer can hold.
+        buffer (list): The internal list used to store buffer elements.
+        head (int): A pointer to the index of the oldest element (next to be read).
+        tail (int): A pointer to the index of the next available slot for writing.
+        size (int): The current number of valid elements in the buffer.
+
+    Time Complexity:
+        - Initialization: O(N) where N is the capacity, due to list pre-allocation.
+        - Write: O(1)
+        - Read: O(1)
+
+    Space Complexity:
+        - O(N) where N is the capacity, to store the buffer elements.
+    """
+
+    def __init__(self, capacity: int):
+        """
+        Initializes the ring buffer with a given capacity.
+
+        Args:
+            capacity: The maximum number of elements the buffer can hold.
+                      Must be a positive integer.
+        
+        Raises:
+            ValueError: If capacity is not a positive integer.
+        """
+        if not isinstance(capacity, int) or capacity <= 0:
+            raise ValueError("Capacity must be a positive integer.")
+
+        self.capacity = capacity
+        self.buffer = [None] * self.capacity
+        self.head = 0
+        self.tail = 0
+        self.size = 0
+
+    def write(self, value: int) -> None:
+        """
+        Writes an integer value to the buffer.
+
+        If the buffer is full, this operation overwrites the oldest value.
+
+        Args:
+            value: The integer value to write into the buffer.
+        """
+        self.buffer[self.tail] = value
+        self.tail = (self.tail + 1) % self.capacity
+
+        if self.size == self.capacity:
+            # When full, a write operation overwrites the oldest element (at the head).
+            # Therefore, the new head becomes the next element in the sequence.
+            self.head = (self.head + 1) % self.capacity
+        else:
+            # If not full, the number of elements simply increases.
+            self.size += 1
+
+    def read(self) -> int | None:
+        """
+        Reads and removes the oldest element from the buffer.
+
+        Each element can be read only once. After being read, its slot in the
+        internal buffer is marked as empty (set to None).
+
+        Returns:
+            The oldest integer value in the buffer, or None if the buffer is empty.
+        """
+        if self.size == 0:
+            return None
+
+        value = self.buffer[self.head]
+        # Invalidate the entry after reading to make debugging clearer.
+        self.buffer[self.head] = None
+        self.head = (self.head + 1) % self.capacity
+        self.size -= 1
+        return value
+
+    @property
+    def is_empty(self) -> bool:
+        """Returns True if the buffer is empty, False otherwise."""
+        return self.size == 0
+
+    @property
+    def is_full(self) -> bool:
+        """Returns True if the buffer is full, False otherwise."""
+        return self.size == self.capacity
+
+    def __str__(self) -> str:
+        """Provides a developer-friendly string representation of the buffer's state."""
+        items = ', '.join(map(lambda x: str(x) if x is not None else 'null', self.buffer))
+        return (f"RingBuffer(capacity={self.capacity}, size={self.size}, "
+                f"head={self.head}, tail={self.tail}, buffer=[{items}])")
+
+
+def run_tests():
+    """
+    Runs a comprehensive test suite for the CyclicRingBuffer class.
+    """
+    print("--- Running Test Suite for CyclicRingBuffer ---\n")
+
+    # Test Case 1: Initialization
+    print("Test 1: Initialization")
+    ring = CyclicRingBuffer(3)
+    assert ring.capacity == 3, "Test 1.1 Failed: Incorrect capacity"
+    assert ring.is_empty, "Test 1.2 Failed: Should be empty"
+    assert not ring.is_full, "Test 1.3 Failed: Should not be full"
+    assert ring.read() is None, "Test 1.4 Failed: Reading from empty should return None"
+    print(f"Initial state: {ring}")
+    print("--> Test 1 PASSED\n")
+
+    # Test Case 2: Conforms to the prompt's example sequence
+    print("Test 2: Prompt's example sequence")
+    ring = CyclicRingBuffer(3)
+    # Insert 10, 20, 30 -> [10, 20, 30]
+    ring.write(10)
+    ring.write(20)
+    ring.write(30)
+    print(f"After writing 10, 20, 30: {ring}")
+    assert ring.buffer == [10, 20, 30], "Test 2.1 Failed"
+    assert ring.is_full, "Test 2.2 Failed: Should be full"
+
+    # Insert 40, 50 -> [40, 50, 30]
+    ring.write(40) # Overwrites 10
+    ring.write(50) # Overwrites 20
+    print(f"After writing 40, 50: {ring}")
+    assert ring.buffer == [40, 50, 30], "Test 2.3 Failed"
+
+    # Read -> [40, 50, null]
+    val1 = ring.read() # Should read 30 (oldest)
+    print(f"Read {val1}, State: {ring}")
+    assert val1 == 30, "Test 2.4 Failed"
+    assert ring.buffer == [40, 50, None], "Test 2.5 Failed"
+
+    # Read -> [null, 50, null]
+    val2 = ring.read() # Should read 40
+    print(f"Read {val2}, State: {ring}")
+    assert val2 == 40, "Test 2.6 Failed"
+    assert ring.buffer == [None, 50, None], "Test 2.7 Failed"
+    print("--> Test 2 PASSED\n")
+
+    # Test Case 3: Reading until empty
+    print("Test 3: Reading until empty")
+    val3 = ring.read() # Should read 50
+    print(f"Read {val3}, State: {ring}")
+    assert val3 == 50, "Test 3.1 Failed"
+    assert ring.is_empty, "Test 3.2 Failed: Should be empty"
+    
+    val4 = ring.read()
+    print(f"Read from empty buffer: {val4}")
+    assert val4 is None, "Test 3.3 Failed"
+    print("--> Test 3 PASSED\n")
+
+    # Test Case 4: Interleaved reads and writes
+    print("Test 4: Interleaved reads and writes")
+    ring = CyclicRingBuffer(4)
+    ring.write(1); ring.write(2); ring.write(3)
+    assert ring.read() == 1, "Test 4.1 Failed"
+    ring.write(4); ring.write(5) # buffer is now [5, 2, 3, 4] and full
+    assert ring.read() == 2, "Test 4.2 Failed"
+    assert ring.read() == 3, "Test 4.3 Failed"
+    assert ring.read() == 4, "Test 4.4 Failed"
+    print(f"State before final read: {ring}")
+    assert ring.read() == 5, "Test 4.5 Failed"
+    assert ring.is_empty, "Test 4.6 Failed"
+    print("--> Test 4 PASSED\n")
+    
+    # Test Case 5: Invalid Capacity
+    print("Test 5: Invalid capacity initialization")
+    try:
+        CyclicRingBuffer(0)
+        assert False, "Test 5.1 Failed: Should have raised ValueError"
+    except ValueError as e:
+        print(f"Caught expected error: {e}")
+    try:
+        CyclicRingBuffer(-5)
+        assert False, "Test 5.2 Failed: Should have raised ValueError"
+    except ValueError as e:
+        print(f"Caught expected error: {e}")
+    print("--> Test 5 PASSED\n")
+
+    print("--- All Tests Passed Successfully! ---")
+
+
+if __name__ == "__main__":
+    run_tests()
+
