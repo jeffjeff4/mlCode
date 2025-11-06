@@ -126,7 +126,9 @@ def makeRealSparseMatrix(sparse_matrix):
             val = sparse_matrix[idx0][idx1]
             if val == 0:
                 continue
-            sparse_matrix_real[idx0, idx1] = val
+            #sparse_matrix_real[idx0, idx1] = val
+            tup = tuple([idx0, idx1])
+            sparse_matrix_real[tup] = val
 
     return sparse_matrix_real
 
