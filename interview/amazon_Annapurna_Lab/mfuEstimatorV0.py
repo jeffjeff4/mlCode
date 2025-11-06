@@ -1,6 +1,6 @@
- Compute Model Flops Utilization (MFU) of single worker which trains with a throughput of 200 samples/sec. 
- Also assume that the input is of shape 10^4 x 10 ^2, i.e the sequence length is 10^4 tokens long and 
- each token has 10^2 as the embedding dimension/size.
+####Compute Model Flops Utilization (MFU) of single worker which trains with a throughput of 200 samples/sec.
+####Also assume that the input is of shape 10^4 x 10 ^2, i.e the sequence length is 10^4 tokens long and
+####each token has 10^2 as the embedding dimension/size.
 
 ####---------------------------------------------------------------------------------------------------------------
 ####Of course. This is an excellent question because it requires us to connect a real-world performance metric (throughput) back to the theoretical capabilities of the hardware.
