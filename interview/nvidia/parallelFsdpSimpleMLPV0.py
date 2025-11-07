@@ -1,356 +1,373 @@
-"""
-Plain-Python educational simulation of FSDP (Fully Sharded Data Parallel).
-- No torch/numpy required.
-- Single process simulates multiple ranks (world_size).
-- Model: simple linear model y = dot(w, x)
-- We show: shard params, local forward, gather preds, compute grads locally,
-  reduce-scatter semantics (here we simply sum grads across replica axis if simulated),
-  local optimizer step on shards, and full-state consolidation.
-"""
+####python code, for machine learning problem, with test case
+####
+####   1. the code MUST be CORRECT
+####   2. consider all cases, including edge cases
+####   3. make it runnable in this chat session
+####   4. provide time complexity and space complexity analysis
+####   5. make the code runnable on cpu
+####   6. generate simple test datasets
+####   7. generate train and evaluation code
+####   8. world_size = int(os.environ.get("WORLD_SIZE", "2"))
+####
+####Question1:
+####
+####using a simple mlp model, manually implement fsdp, by using below logic
+####
+####
+####FSDP forward pass:
+####    for layer_i in layers:
+####        all-gather full weights for layer_i
+####        forward pass for layer_i
+####        discard full weights for layer_i
+####
+####FSDP backward pass:
+####    for layer_i in layers:
+####        all-gather full weights for layer_i
+####        backward pass for layer_i
+####        discard full weights for layer_i
+####        reduce-scatter gradients for layer_i
 
-from typing import List, Dict, Tuple
-import random
-import copy
-import torch
-import torch.distributed as dist
 
+#### this is a runnble version, could be used in an interview
+#### this is from chatgpt
 
-# -------------------------
-# Utilities for vectors
-# -------------------------
-def vec_dot(a: List[float], b: List[float]) -> float:
-    return sum(x*y for x,y in zip(a,b))
+import os
+import math
+import numpy as np
 
-def vec_add(a: List[float], b: List[float]) -> List[float]:
-    return [x+y for x,y in zip(a,b)]
+# -----------------------------
+# Utilities
+# -----------------------------
+def softmax(logits):
+    z = logits - np.max(logits, axis=1, keepdims=True)
+    e = np.exp(z)
+    return e / np.sum(e, axis=1, keepdims=True)
 
-def vec_scale(a: List[float], s: float) -> List[float]:
-    return [x*s for x in a]
-
-# -------------------------
-# Sharding helpers
-# -------------------------
-def shard_indices(param_len: int, world_size: int) -> List[Tuple[int,int]]:
+def cross_entropy_loss(logits, y):
     """
-    Return list of (start, end) indices (end exclusive) per rank.
-    Simple equal (floor) partition; last gets remainder.
+    logits: (N, C)
+    y: (N,) int labels in [0, C-1]
     """
-    base = param_len // world_size
-    rem = param_len % world_size
-    idxs = []
-    cur = 0
-    for r in range(world_size):
-        extra = 1 if r < rem else 0
-        s = cur
-        e = cur + base + extra
-        idxs.append((s,e))
-        cur = e
-    return idxs
+    probs = softmax(logits)
+    N = logits.shape[0]
+    # Avoid log(0)
+    eps = 1e-12
+    probs = np.clip(probs, eps, 1.0)
+    logp = -np.log(probs[np.arange(N), y])
+    return np.mean(logp), probs
 
-# -------------------------
-# Simple "Model" container
-# -------------------------
-class SimpleLinearModel:
-    def __init__(self, w: List[float]):
-        # full parameter vector (conceptual)
-        self.w = list(w)
+def one_hot(y, num_classes):
+    N = len(y)
+    oh = np.zeros((N, num_classes), dtype=np.float64)
+    oh[np.arange(N), y] = 1.0
+    return oh
 
-    def forward_full(self, x: List[float]) -> float:
-        return vec_dot(self.w, x)
+def relu(x):
+    return np.maximum(x, 0.0)
 
-    def get_param_len(self) -> int:
-        return len(self.w)
+def relu_backward(grad_out, x_cached):
+    g = grad_out.copy()
+    g[x_cached <= 0.0] = 0.0
+    return g
 
-
-class ManualMLP:
+def shard_splits(total_rows, world_size):
     """
-    A simple MLP with fully manual forward/backward passes.
-    This does *not* inherit from nn.Module.
+    Row-wise sharding sizes that handle non-even splits robustly.
+    Returns sizes and start indices.
     """
+    # Use numpy split sizes similar to np.array_split logic
+    base = total_rows // world_size
+    rem = total_rows % world_size
+    sizes = [base + (1 if i < rem else 0) for i in range(world_size)]
+    starts = [0]
+    for i in range(1, world_size):
+        starts.append(starts[-1] + sizes[i-1])
+    return sizes, starts
 
-    def __init__(self, input_size, hidden_size, output_size, rank, world_size):
-        # Seed to ensure all processes *could* initialize the same,
-        # but we will broadcast from rank 0 to guarantee it.
-        torch.manual_seed(42)
+# -----------------------------
+# Linear layer shards (row-wise)
+# -----------------------------
+class ShardedLinear:
+    """
+    Row-sharded Linear: y = x @ W^T + b
+    We shard W along its row/output dimension across ranks.
+    For simulation, we keep all ranks' shards in this object.
+    """
+    def __init__(self, in_features, out_features, world_size, seed=0):
+        rng = np.random.default_rng(seed)
+        self.in_features = in_features
+        self.out_features = out_features
+        self.world_size = world_size
 
-        # --- 1. Initialize Parameters ---
-        self.W1 = torch.randn(input_size, hidden_size) * 0.1
-        self.b1 = torch.zeros(hidden_size)
-        self.W2 = torch.randn(hidden_size, output_size) * 0.1
-        self.b2 = torch.zeros(output_size)
-        self.params = [self.W1, self.b1, self.W2, self.b2]
+        sizes, starts = shard_splits(out_features, world_size)
+        self.sizes = sizes
+        self.starts = starts
 
-        # --- 2. Manually Broadcast Weights (Part of "Manual DDP") ---
-        # This is a critical step. We must ensure all models
-        # start with the exact same weights from rank 0.
-        for p in self.params:
-            dist.broadcast(p, src=0)
+        # Initialize shards: list of W_shard (rows_i, in_features), b_shard (rows_i,)
+        self.W_shards = [
+            rng.normal(0, 0.02, size=(sizes[i], in_features)).astype(np.float64)
+            for i in range(world_size)
+        ]
+        self.b_shards = [
+            np.zeros((sizes[i],), dtype=np.float64) for i in range(world_size)
+        ]
 
-        # --- 3. Buffers for intermediate values (for backward pass) ---
-        self.x_input = None
-        self.z1 = None
-        self.a1 = None
-        self.z2 = None  # (This is also y_pred)
+        # Accumulators for reduce-scatter gradients (per rank)
+        self.dW_shards_accum = [np.zeros_like(self.W_shards[i]) for i in range(world_size)]
+        self.db_shards_accum = [np.zeros_like(self.b_shards[i]) for i in range(world_size)]
 
-        # --- 4. Buffers for gradients ---
-        self.grad_W1 = None
-        self.grad_b1 = None
-        self.grad_W2 = None
-        self.grad_b2 = None
-        self.grads = [self.grad_W1, self.grad_b1, self.grad_W2, self.grad_b2]
+    def all_gather_full_weights(self):
+        """Reconstruct full W, b by concatenating shards along rows."""
+        W_full = np.concatenate(self.W_shards, axis=0)
+        b_full = np.concatenate(self.b_shards, axis=0)
+        return W_full, b_full
+
+    def reduce_scatter_grads(self, dW_full, db_full):
+        """Split full grads row-wise and accumulate into shard grad buffers."""
+        # Slice per shard using sizes & starts
+        for i in range(self.world_size):
+            s = self.starts[i]
+            e = s + self.sizes[i]
+            self.dW_shards_accum[i] += dW_full[s:e, :]
+            self.db_shards_accum[i] += db_full[s:e]
+
+    def zero_grad_accum(self):
+        for i in range(self.world_size):
+            self.dW_shards_accum[i].fill(0.0)
+            self.db_shards_accum[i].fill(0.0)
+
+    def step(self, lr, world_size):
+        """
+        Apply SGD update using averaged grads across ranks:
+        W_i -= lr * (dW_i_accum / world_size), similarly for b.
+        """
+        for i in range(self.world_size):
+            self.W_shards[i] -= lr * (self.dW_shards_accum[i] / world_size)
+            self.b_shards[i] -= lr * (self.db_shards_accum[i] / world_size)
+
+# -----------------------------
+# MLP with two Linear layers
+# -----------------------------
+class ShardedMLP_FSDP:
+    """
+    Simulated FSDP MLP:
+    Layers: Linear(in->hidden), ReLU, Linear(hidden->num_classes)
+    Uses FSDP-like logic:
+      Forward per layer: all-gather full weights -> compute -> discard full
+      Backward per layer: all-gather full weights -> compute -> discard -> reduce-scatter grads
+    """
+    def __init__(self, in_features, hidden, num_classes, world_size, seed=0):
+        self.l1 = ShardedLinear(in_features, hidden, world_size, seed=seed+1)
+        self.l2 = ShardedLinear(hidden, num_classes, world_size, seed=seed+2)
+        self.world_size = world_size
 
     def forward(self, x):
         """
-        Manual forward pass.
-        We save intermediate values needed for the backward pass.
+        Returns:
+            logits, cache for backward (to avoid storing full weights)
+        Cache stores intermediate activations needed for backprop.
         """
-        self.x_input = x
+        cache = {}
 
-        # Layer 1: z1 = X @ W1 + b1
-        self.z1 = torch.matmul(x, self.W1) + self.b1
+        # Layer 1: all-gather full weights -> forward -> discard
+        W1, b1 = self.l1.all_gather_full_weights()
+        z1 = x @ W1.T + b1  # (N, hidden)
+        a1 = relu(z1)
+        cache['x'] = x
+        cache['z1'] = z1  # for relu backward
+        cache['a1'] = a1
 
-        # Activation 1: a1 = ReLU(z1)
-        self.a1 = torch.maximum(torch.tensor(0.0), self.z1)
+        # Layer 2: all-gather full weights -> forward -> discard
+        W2, b2 = self.l2.all_gather_full_weights()
+        logits = a1 @ W2.T + b2  # (N, C)
+        cache['W1_shape'] = W1.shape
+        cache['W2_shape'] = W2.shape
+        # Note: We do NOT store W1 or W2 (simulate discard)
 
-        # Layer 2: z2 = a1 @ W2 + b2
-        self.z2 = torch.matmul(self.a1, self.W2) + self.b2
+        return logits, cache
 
-        return self.z2  # z2 is our prediction, y_pred
-
-    def backward(self, y_true):
+    def backward_and_reduce_scatter(self, cache, dlogits):
         """
-        Manual backward pass (Chain Rule).
-        This computes the gradients *only* for the local batch.
+        Given dL/dlogits, run backward layer-by-layer with FSDP logic and
+        reduce-scatter grads into shard accumulators.
         """
-        N = y_true.shape[0]  # Batch size
-        y_pred = self.z2
+        a1 = cache['a1']
+        z1 = cache['z1']
+        x  = cache['x']
 
-        # --- Start at the end: Gradient of Loss w.r.t. Prediction ---
-        # Loss = (1/N) * sum( (y_pred - y_true)^2 )
-        # dL/dy_pred = (2/N) * (y_pred - y_true)
-        grad_y_pred = (2.0 / N) * (y_pred - y_true)
+        # ---- Layer 2 backward ----
+        # all-gather full weights for L2
+        W2_full, _b2_full = self.l2.all_gather_full_weights()
 
-        # --- Step 1: Gradients for Layer 2 (W2, b2) ---
-        # y_pred (or z2) = a1 @ W2 + b2
-        grad_z2 = grad_y_pred  # Gradient just passes through
+        # dW2_full = dlogits^T @ a1
+        dW2_full = dlogits.T @ a1  # (C, hidden)
+        db2_full = np.sum(dlogits, axis=0)  # (C,)
+        # dx for next layer: dL/da1 = dlogits @ W2_full
+        da1 = dlogits @ W2_full  # (N, hidden)
 
-        # dL/dW2 = (dL/dz2) * (dz2/dW2) = grad_z2 * a1
-        self.grad_W2 = torch.matmul(self.a1.T, grad_z2)
+        # reduce-scatter grads for L2
+        self.l2.reduce_scatter_grads(dW2_full, db2_full)
 
-        # dL/db2 = (dL/dz2) * (dz2/db2) = grad_z2 * 1
-        self.grad_b2 = torch.sum(grad_z2, axis=0)
+        # ---- ReLU backward ----
+        dz1 = relu_backward(da1, z1)  # (N, hidden)
 
-        # --- Step 2: Propagate Gradients to Layer 1 (W1, b1) ---
+        # ---- Layer 1 backward ----
+        W1_full, _b1_full = self.l1.all_gather_full_weights()
+        dW1_full = dz1.T @ x  # (hidden, in_features)
+        db1_full = np.sum(dz1, axis=0)  # (hidden,)
+        # dx not needed for input
 
-        # dL/da1 = (dL/dz2) * (dz2/da1) = grad_z2 @ W2.T
-        grad_a1 = torch.matmul(grad_z2, self.W2.T)
+        # reduce-scatter grads for L1
+        self.l1.reduce_scatter_grads(dW1_full, db1_full)
 
-        # dL/dz1 = (dL/da1) * (da1/dz1)
-        # da1/dz1 is the derivative of ReLU
-        relu_deriv = (self.z1 > 0).float()
-        grad_z1 = grad_a1 * relu_deriv  # Element-wise
+    def zero_grad(self):
+        self.l1.zero_grad_accum()
+        self.l2.zero_grad_accum()
 
-        # dL/dW1 = (dL/dz1) * (dz1/dW1) = grad_z1 * x_input
-        self.grad_W1 = torch.matmul(self.x_input.T, grad_z1)
+    def step(self, lr, world_size):
+        self.l1.step(lr, world_size)
+        self.l2.step(lr, world_size)
 
-        # dL/db1 = (dL/dz1) * (dz1/db1) = grad_z1 * 1
-        self.grad_b1 = torch.sum(grad_z1, axis=0)
+    def gather_full_model(self):
+        """Return full (W1,b1,W2,b2) for evaluation/inference."""
+        W1, b1 = self.l1.all_gather_full_weights()
+        W2, b2 = self.l2.all_gather_full_weights()
+        return (W1, b1, W2, b2)
 
-        # Store grads in a list for easier averaging
-        self.grads = [self.grad_W1, self.grad_b1, self.grad_W2, self.grad_b2]
-
-    def average_gradients(self, world_size):
-        """
-        This is the **MANUAL DDP** step.
-        We use all_reduce (sum) and then divide by world_size
-        to get the average gradient across all processes.
-        """
-        for grad_tensor in self.grads:
-            # Sum all gradients from all processes
-            dist.all_reduce(grad_tensor, op=dist.ReduceOp.SUM)
-            # Divide by the number of processes to get the average
-            grad_tensor /= world_size
-
-    def update_weights(self, lr):
-        """
-        Manual optimizer step (SGD).
-        This is identical on all processes because they all
-        have the same averaged gradients.
-        """
-        self.W1 -= lr * self.grad_W1
-        self.b1 -= lr * self.grad_b1
-        self.W2 -= lr * self.grad_W2
-        self.b2 -= lr * self.grad_b2
-
-
-# -------------------------
-# FSDP Rank (simulated)
-# Each rank stores only its shard of parameters (w_shard)
-# -------------------------
-class FSDPRank:
-    #def __init__(self, rank_id: int, world_size: int, full_model: SimpleLinearModel):
-    def __init__(self, rank_id: int, world_size: int, full_model: ManualMLP):
-
-        self.rank = rank_id
-        self.world_size = world_size
-        self.full_len = full_model.get_param_len()
-        self.shard_map = shard_indices(self.full_len, world_size)
-        self.start, self.end = self.shard_map[rank_id]
-        # local shard (copy of the slice)
-        self.local_w = full_model.w[self.start:self.end]
-        # local grad placeholder (same shape as local_w)
-        self.local_grad = [0.0] * len(self.local_w)
-        # simple SGD opt state: learning rate
-        self.lr = 0.1
-
-    def local_forward_contrib(self, x: List[float]) -> float:
-        """Compute local contribution to dot(w, x) using only local shard."""
-        x_slice = x[self.start:self.end]
-        return vec_dot(self.local_w, x_slice)
-
-    def compute_local_gradients(self, x: List[float], global_pred: float, y: float):
-        """
-        Compute gradient of loss L = (pred - y)^2 wrt local params:
-        grad_w_i = 2*(pred - y) * x_i
-        Here global_pred should be full dot(w,x), not just local.
-        """
-        err = global_pred - y
-        x_slice = x[self.start:self.end]
-        self.local_grad = [2.0 * err * xi for xi in x_slice]
-
-    def apply_local_step(self):
-        """SGD update on local shard."""
-        self.local_w = [w - self.lr * g for w, g in zip(self.local_w, self.local_grad)]
-
-    def replace_shard(self, new_shard: List[float]):
-        self.local_w = list(new_shard)
-
-    def get_shard(self) -> List[float]:
-        return list(self.local_w)
-
-    def zero_local_grad(self):
-        self.local_grad = [0.0] * len(self.local_w)
-
-# -------------------------
-# Simulated communication primitives
-# (Since we're single-process simulating, these are simple aggregations)
-# -------------------------
-def all_gather_preds(local_contribs: List[float]) -> float:
-    """All-gather and sum local contributions to get full prediction."""
-    return sum(local_contribs)
-
-def reduce_scatter_sum(sharded_grads_across_replicas: List[List[List[float]]]) -> List[List[float]]:
+# -----------------------------
+# Data generation
+# -----------------------------
+def make_synthetic_data(n_samples=600, n_features=16, n_classes=3, seed=0):
     """
-    Simulate reduce-scatter across data-parallel replicas but here simplified:
-    Input shape simulated as [replica_id][rank_id][shard_len]
-    For single replica case, we just sum across replicas per rank and return list per rank.
-    Output: list of grads per rank (already reduced and assigned to corresponding rank)
+    Multiclass Gaussian blobs.
     """
-    num_replicas = len(sharded_grads_across_replicas)
-    world_size = len(sharded_grads_across_replicas[0])
-    out = []
-    for r in range(world_size):
-        # sum replica contributions for rank r
-        sum_shard = None
-        for rep in range(num_replicas):
-            if sum_shard is None:
-                sum_shard = list(sharded_grads_across_replicas[rep][r])
-            else:
-                sum_shard = [a+b for a,b in zip(sum_shard, sharded_grads_across_replicas[rep][r])]
-        out.append(sum_shard)
-    return out
+    rng = np.random.default_rng(seed)
+    X = []
+    y = []
+    centers = rng.normal(0, 3.0, size=(n_classes, n_features))
+    for c in range(n_classes):
+        Xi = centers[c] + rng.normal(0, 1.0, size=(n_samples // n_classes, n_features))
+        yi = np.full((n_samples // n_classes,), c, dtype=int)
+        X.append(Xi)
+        y.append(yi)
+    X = np.concatenate(X, axis=0)
+    y = np.concatenate(y, axis=0)
+    # Shuffle
+    idx = rng.permutation(len(y))
+    return X[idx].astype(np.float64), y[idx]
 
-def consolidate_full_state(ranks: List[FSDPRank]) -> List[float]:
-    """Gather each rank's shard to build the full parameter vector in order."""
-    full = []
-    for r in ranks:
-        full.extend(r.get_shard())
-    return full
+def train_val_split(X, y, val_ratio=0.2, seed=0):
+    rng = np.random.default_rng(seed)
+    N = len(y)
+    idx = rng.permutation(N)
+    cut = int(N * (1 - val_ratio))
+    tr = idx[:cut]
+    va = idx[cut:]
+    return X[tr], y[tr], X[va], y[va]
 
-# -------------------------
-# Putting it together: one training step simulation
-# -------------------------
-#def fsdp_step_simulation(full_model: SimpleLinearModel, ranks: List[FSDPRank],
-#                         x: List[float], y: float, num_replicas: int = 1):
-def fsdp_step_simulation(full_model: ManualMLP, ranks: List[FSDPRank],
-                         x: List[float], y: float, num_replicas: int = 1):
+# -----------------------------
+# Training (simulated multi-rank loop)
+# -----------------------------
+def run_training(
+    input_dim=16,
+    hidden=32,
+    num_classes=3,
+    epochs=5,
+    batch_size=64,
+    lr=0.1,
+    seed=0
+):
+    world_size = int(os.environ.get("WORLD_SIZE", "2"))
+    print(f"Simulated world_size = {world_size}")
 
-    """
-    Simulate one step:
-    - local forward contributions
-    - gather preds (all-gather sum)
-    - compute local grads (each rank)
-    - simulate reduce-scatter (sum across replicas) -> get reduced grads per rank
-    - local update on each rank with reduced gradient
-    - (optionally consolidate full state for logging)
-    """
-    world_size = len(ranks)
+    # Data
+    X, y = make_synthetic_data(n_samples=600, n_features=input_dim, n_classes=num_classes, seed=seed)
+    Xtr, ytr, Xva, yva = train_val_split(X, y, val_ratio=0.2, seed=seed+1)
 
-    # 1) each rank computes local forward contribution
-    local_contribs = [r.local_forward_contrib(x) for r in ranks]
-    # 2) all-gather (sum) to get global prediction
-    pred = all_gather_preds(local_contribs)
-    loss = (pred - y)**2
+    # Simple batching helper
+    def iterate_minibatches(Xd, yd, bs):
+        N = len(yd)
+        for i in range(0, N, bs):
+            yield Xd[i:i+bs], yd[i:i+bs]
 
-    # 3) each rank computes local gradients (w.r.t its shard), using global pred
-    for r in ranks:
-        r.compute_local_gradients(x, pred, y)
+    # Model
+    model = ShardedMLP_FSDP(input_dim, hidden, num_classes, world_size, seed=seed)
 
-    # If simulating multiple data-parallel replicas, we would have gradient shards per replica.
-    # For simplicity, assume num_replicas replicas with identical grads here (or could simulate noise).
-    # Build sharded_grads_across_replicas: [replica][rank][shard]
-    sharded_grads_across_replicas = []
-    for rep_id in range(num_replicas):
-        rep_list = []
-        for r in ranks:
-            # Could add tiny noise per replica to simulate difference; here identical
-            rep_list.append(list(r.local_grad))
-        sharded_grads_across_replicas.append(rep_list)
+    # Training
+    for ep in range(1, epochs+1):
+        # Shuffle training data each epoch
+        perm = np.random.permutation(len(ytr))
+        Xtr_shuf, ytr_shuf = Xtr[perm], ytr[perm]
+        losses = []
+        correct = 0
+        seen = 0
 
-    # 4) reduce-scatter-sum: sum grads across replicas and produce per-rank reduced grad
-    reduced_per_rank = reduce_scatter_sum(sharded_grads_across_replicas)
+        for xb, yb in iterate_minibatches(Xtr_shuf, ytr_shuf, batch_size):
+            # Zero accumulators (per step)
+            model.zero_grad()
 
-    # 5) each rank replaces its local_grad with reduced gradient and applies optimizer step
-    for idx, r in enumerate(ranks):
-        r.local_grad = reduced_per_rank[idx]
-        r.apply_local_step()
+            # ---- Simulate synchronous multi-rank step ----
+            # Split the batch across ranks (data parallel input split)
+            splits, starts = shard_splits(len(xb), world_size)
+            for rank in range(world_size):
+                s = starts[rank]
+                e = s + splits[rank]
+                if s >= e:
+                    continue  # handle tiny batches
 
-    return pred, loss
+                xb_r = xb[s:e]
+                yb_r = yb[s:e]
 
-# -------------------------
-# Demo / Example usage
-# -------------------------
-def demo():
-    random.seed(0)
-    # full model w dimension
-    D = 7
-    # initialize full parameter vector
-    full_w = [random.uniform(-1,1) for _ in range(D)]
-    full_model = SimpleLinearModel(full_w)
-    print("Initial full w:", [round(v,3) for v in full_model.w])
+                # Forward (FSDP-style per layer all-gather)
+                logits, cache = model.forward(xb_r)
+                loss, probs = cross_entropy_loss(logits, yb_r)
+                losses.append(loss)
 
-    # world_size: number of FSDP shards (ranks)
-    world_size = 3
-    ranks = [FSDPRank(r, world_size, full_model) for r in range(world_size)]
-    for i,r in enumerate(ranks):
-        s,e = r.start, r.end
-        print(f"Rank {i} holds indices [{s},{e}) -> shard:", [round(v,3) for v in r.get_shard()])
+                # Accuracy tracking (per rank)
+                preds = np.argmax(probs, axis=1)
+                correct += np.sum(preds == yb_r)
+                seen += len(yb_r)
 
-    # a single training sample (x,y)
-    x = [random.uniform(-1,1) for _ in range(D)]
-    # target computed from original full model plus some noise
-    y = vec_dot(full_model.w, x) + 0.5  # want the model to fit y
+                # Backward
+                # dL/dlogits = (probs - one_hot)/N_rank  (average over local rank batch)
+                oh = one_hot(yb_r, num_classes)
+                dlogits = (probs - oh) / max(1, len(yb_r))
+                model.backward_and_reduce_scatter(cache, dlogits)
 
-    print("x:", [round(v,3) for v in x], "y:", round(y,3))
+            # After all ranks processed their local splits, apply optimizer step
+            model.step(lr, world_size)
 
-    # Run a few training steps (simulate single replica)
-    for step in range(5):
-        pred, loss = fsdp_step_simulation(full_model, ranks, x, y, num_replicas=1)
-        full_now = consolidate_full_state(ranks)
-        print(f"Step {step}: pred={pred:.4f}, loss={loss:.6f}")
-        print(" Full w:", [round(v,4) for v in full_now])
+        # Epoch summary
+        tr_loss = float(np.mean(losses)) if losses else float('nan')
+        tr_acc = 100.0 * correct / max(1, seen)
+        va_acc = evaluate(model, Xva, yva)
+        print(f"Epoch {ep:02d} | train loss {tr_loss:.4f} | train acc {tr_acc:.2f}% | val acc {va_acc:.2f}%")
 
-    print("Final consolidated params:", [round(v,4) for v in consolidate_full_state(ranks)])
+    # Final evaluation
+    final_acc = evaluate(model, Xva, yva)
+    print(f"Final validation accuracy: {final_acc:.2f}%")
+    return model
 
+def evaluate(model, X, y):
+    # Gather full model weights to do an ordinary forward on CPU
+    W1, b1, W2, b2 = model.gather_full_model()
+    a1 = relu(X @ W1.T + b1)
+    logits = a1 @ W2.T + b2
+    preds = np.argmax(logits, axis=1)
+    return 100.0 * np.mean(preds == y)
+
+# -----------------------------
+# Run (train + eval)
+# -----------------------------
 if __name__ == "__main__":
-    demo()
+    # You can change WORLD_SIZE via environment, e.g.:
+    # os.environ["WORLD_SIZE"] = "2"
+    model = run_training(
+        input_dim=16,
+        hidden=32,
+        num_classes=3,
+        epochs=5,
+        batch_size=64,
+        lr=0.2,
+        seed=42
+    )
